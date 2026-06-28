@@ -1,0 +1,34 @@
+id,slug,name,movement_pattern,primary_muscles,secondary_muscles,contraindications,equipment_json,difficulty,description
+,back-squat,Back Squat,squat,"[""quads""]","[""glutes"",""adductors"",""erectors"",""core""]","[""acute_knee_injury"",""acute_lumbar_disc_irritation""]","[""barbell"", ""rack""]",intermediate,Barbell squat to parallel or below with braced trunk and neutral spine.
+,front-squat,Front Squat,squat,"[""quads""]","[""glutes"",""upper_back"",""core""]",[],"[""barbell"", ""rack""]",advanced,Barbell squat with front rack position; emphasizes upright torso and quad demand.
+,goblet-squat,Goblet Squat,squat,"[""quads""]","[""glutes"",""core""]",[],"[""dumbbell"", ""kettlebell""]",beginner,Hold a dumbbell or kettlebell at chest and squat with controlled depth.
+,split-squat,Split Squat,squat,"[""quads""]","[""glutes"",""adductors"",""core""]",[],"[""bodyweight"", ""dumbbell""]",beginner,Stationary lunge position; lower under control keeping front knee tracking over toes.
+,walking-lunge,Walking Lunge,squat,"[""quads""]","[""glutes"",""hamstrings"",""calves"",""core""]",[],"[""bodyweight"", ""dumbbell""]",intermediate,Alternating steps into a lunge with upright torso and stable knee alignment.
+,step-up,Step-Up,squat,"[""glutes""]","[""quads"",""hamstrings"",""core""]",[],"[""box"", ""dumbbell""]",beginner,Step onto a box/bench driving through the whole foot; control the descent.
+,conventional-deadlift,Conventional Deadlift,hinge,"[""glutes""]","[""hamstrings"",""erectors"",""lats"",""core""]","[""acute_lumbar_disc_irritation""]","[""barbell""]",advanced,Hip hinge from the floor with braced trunk; push the ground away and lock out tall.
+,romanian-deadlift,Romanian Deadlift,hinge,"[""hamstrings""]","[""glutes"",""erectors"",""lats"",""core""]",[],"[""barbell"", ""dumbbell""]",intermediate,Hinge with soft knees; lower until hamstring stretch then drive hips forward.
+,kettlebell-swing,Kettlebell Swing,hinge,"[""glutes""]","[""hamstrings"",""core"",""lats""]",[],"[""kettlebell""]",intermediate,Explosive hip hinge; hike the bell and snap hips to project it forward.
+,hip-thrust,Hip Thrust,hinge,"[""glutes""]","[""hamstrings"",""core""]",[],"[""barbell"", ""bench""]",intermediate,Upper back on bench; drive hips up to full extension squeezing glutes at top.
+,glute-bridge,Glute Bridge,hinge,"[""glutes""]","[""hamstrings"",""core""]",[],"[""bodyweight""]",beginner,Feet planted; lift hips by squeezing glutes while maintaining rib-down position.
+,good-morning,Good Morning,hinge,"[""hamstrings""]","[""glutes"",""erectors"",""core""]",[],"[""barbell""]",advanced,Barbell on upper back; hinge forward with neutral spine and return under control.
+,bench-press,Bench Press,push,"[""chest""]","[""triceps"",""front_delts""]",[],"[""barbell"", ""bench""]",intermediate,Press barbell from chest with stable shoulder blades and controlled touch point.
+,dumbbell-bench-press,Dumbbell Bench Press,push,"[""chest""]","[""triceps"",""front_delts""]",[],"[""dumbbell"", ""bench""]",beginner,Press dumbbells with neutral wrist and controlled range; keep shoulders packed.
+,push-up,Push-Up,push,"[""chest""]","[""triceps"",""front_delts"",""core""]",[],"[""bodyweight""]",beginner,Straight-line body; lower chest toward floor and press while maintaining brace.
+,overhead-press,Overhead Press,push,"[""shoulders""]","[""triceps"",""upper_back"",""core""]","[""acute_shoulder_impingement""]","[""barbell""]",intermediate,Press bar overhead with stacked ribs and pelvis; avoid excessive low-back arch.
+,dumbbell-shoulder-press,Dumbbell Shoulder Press,push,"[""shoulders""]","[""triceps"",""core""]",[],"[""dumbbell""]",beginner,Press dumbbells overhead with controlled tempo; keep forearms vertical.
+,parallel-bar-dip,Parallel Bar Dip,push,"[""triceps""]","[""chest"",""front_delts""]","[""anterior_shoulder_instability""]","[""dip_bars"", ""bodyweight""]",advanced,Lower with shoulders controlled; press to lockout without shrugging.
+,pull-up,Pull-Up,pull,"[""lats""]","[""biceps"",""upper_back"",""core""]",[],"[""pullup_bar"", ""bodyweight""]",advanced,Start from dead hang; pull chest up by driving elbows down and back.
+,chin-up,Chin-Up,pull,"[""lats""]","[""biceps"",""upper_back"",""core""]",[],"[""pullup_bar"", ""bodyweight""]",intermediate,Supinated grip pull; keep ribs down and avoid swinging.
+,lat-pulldown,Lat Pulldown,pull,"[""lats""]","[""biceps"",""upper_back""]",[],"[""cable_machine""]",beginner,Pull bar to upper chest by driving elbows down; keep torso stable.
+,barbell-row,Barbell Row,pull,"[""upper_back""]","[""lats"",""biceps"",""erectors"",""core""]",[],"[""barbell""]",intermediate,Hinge to stable torso angle; row bar to lower ribs without jerking.
+,one-arm-dumbbell-row,One-Arm Dumbbell Row,pull,"[""lats""]","[""upper_back"",""biceps"",""core""]",[],"[""dumbbell"", ""bench""]",beginner,Support on bench; row toward hip keeping shoulder packed and spine neutral.
+,face-pull,Face Pull,pull,"[""rear_delts""]","[""upper_back"",""rotator_cuff""]",[],"[""cable_machine"", ""band""]",beginner,Pull toward face with elbows high; externally rotate and squeeze upper back.
+,farmers-carry,Farmer's Carry,carry,"[""grip""]","[""traps"",""core"",""glutes""]",[],"[""dumbbell"", ""kettlebell""]",beginner,"Walk with heavy implements at sides; stay tall with steady, controlled steps."
+,suitcase-carry,Suitcase Carry,carry,"[""core""]","[""grip"",""obliques"",""glutes""]",[],"[""dumbbell"", ""kettlebell""]",intermediate,Single-side carry; resist lateral bending and keep hips level.
+,overhead-carry,Overhead Carry,carry,"[""shoulders""]","[""traps"",""core"",""glutes""]",[],"[""kettlebell"", ""dumbbell""]",advanced,Carry weight overhead with locked-out elbow; maintain stacked posture.
+,plank,Plank,core,"[""core""]","[""glutes"",""shoulders""]",[],"[""bodyweight""]",beginner,Forearms on floor; keep ribs down and pelvis tucked to maintain neutral spine.
+,side-plank,Side Plank,core,"[""obliques""]","[""glutes"",""shoulders""]",[],"[""bodyweight""]",beginner,Elbow under shoulder; lift hips and keep body in a straight line.
+,dead-bug,Dead Bug,core,"[""core""]","[""hip_flexors""]",[],"[""bodyweight""]",beginner,Supine; brace and extend opposite arm/leg without low-back lifting.
+,hollow-hold,Hollow Hold,core,"[""core""]","[""hip_flexors""]",[],"[""bodyweight""]",intermediate,Posterior pelvic tilt; hold hollow body position with low back pressed down.
+,pallof-press,Pallof Press,core,"[""core""]","[""obliques"",""glutes""]",[],"[""cable_machine"", ""band""]",beginner,Anti-rotation press; extend arms without letting torso rotate.
+,hanging-knee-raise,Hanging Knee Raise,core,"[""core""]","[""hip_flexors"",""grip"",""lats""]",[],"[""pullup_bar"", ""bodyweight""]",intermediate,"Hang with control; lift knees by curling pelvis, avoiding swinging."

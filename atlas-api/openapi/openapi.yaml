@@ -1,0 +1,5979 @@
+openapi: 3.0.3
+info:
+  title: Atlas API
+  version: 1.0.0
+  description: Atlas mobile fitness platform local API contract.
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Health
+  - name: Auth
+  - name: User
+  - name: Billing
+  - name: Consent
+  - name: FormCheck
+  - name: Exercise
+  - name: Onboarding
+  - name: Program
+  - name: Workout
+  - name: Dashboard
+  - name: Analytics
+  - name: Habit
+  - name: Nutrition
+  - name: Food
+  - name: Community
+  - name: CoachSession
+
+paths:
+  /api/v1/health:
+    get:
+      operationId: GetHealth
+      tags:
+        - Health
+      summary: Health check endpoint
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/v1/auth/register:
+    post:
+      operationId: PostAuthRegister
+      tags:
+        - Auth
+      summary: Register a user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/auth/login:
+    post:
+      operationId: PostAuthLogin
+      tags:
+        - Auth
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/auth/logout:
+    post:
+      operationId: PostAuthLogout
+      tags:
+        - Auth
+      summary: Logout a user session by refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+      responses:
+        '204':
+          description: Logout successful
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/auth/refresh:
+    post:
+      operationId: PostAuthRefresh
+      tags:
+        - Auth
+      summary: Refresh auth tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Token refresh successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/me:
+    get:
+      operationId: GetMe
+      tags:
+        - User
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/billing/verify:
+    post:
+      operationId: PostBillingVerify
+      tags:
+        - Billing
+      summary: Validate an app-store receipt/token and update subscription entitlements
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillingVerifyRequest'
+      responses:
+        '200':
+          description: Subscription verification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingVerifyResponse'
+        '400':
+          description: Invalid billing payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/consents:
+    get:
+      operationId: GetConsents
+      tags:
+        - Consent
+      summary: List consents for current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Consents list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/consents/grant:
+    post:
+      operationId: PostConsentsGrant
+      tags:
+        - Consent
+      summary: Grant consent for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GrantConsentRequest'
+      responses:
+        '200':
+          description: Consent granted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Entitlement required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/consents/revoke:
+    post:
+      operationId: PostConsentsRevoke
+      tags:
+        - Consent
+      summary: Revoke consent for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeConsentRequest'
+      responses:
+        '200':
+          description: Consent revoked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Active consent not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/form-check/uploads:
+    post:
+      operationId: PostFormCheckUploads
+      tags:
+        - FormCheck
+      summary: Upload form-check result metadata for coach review
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormCheckUploadRequest'
+      responses:
+        '201':
+          description: Form-check upload metadata accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormCheckUploadResponse'
+        '400':
+          description: Invalid upload payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Entitlement or consent required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/events:
+    post:
+      operationId: PostEvents
+      tags:
+        - Analytics
+      summary: Ingest product analytics event
+      description: |
+        Accepts privacy-safe product analytics events. Authentication is optional:
+        authenticated users require active `product_analytics` consent, and
+        anonymous clients must explicitly set `consentGranted=true`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostEventRequest'
+      responses:
+        '202':
+          description: Event accepted for ingestion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventIngestResponse'
+        '400':
+          description: Invalid event payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Analytics consent is not granted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/dashboard/summary:
+    get:
+      operationId: GetDashboardSummary
+      tags:
+        - Dashboard
+      summary: Get dashboard summary metrics for current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummaryResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Deep nutrition subscription required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/dashboard/readiness-checkin:
+    post:
+      operationId: PostDashboardReadinessCheckin
+      tags:
+        - Dashboard
+      summary: Upsert readiness check-in for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DashboardReadinessCheckinRequest'
+      responses:
+        '200':
+          description: Readiness check-in saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardReadinessCheckinResponse'
+        '400':
+          description: Invalid check-in payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/habits:
+    get:
+      operationId: GetHabits
+      tags:
+        - Habit
+      summary: List habits for current user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: date
+          in: query
+          required: false
+          description: UTC date key (`YYYY-MM-DD`) used to resolve completion state. Defaults to current UTC date.
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Habit list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: PostHabits
+      tags:
+        - Habit
+      summary: Create habit for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHabitRequest'
+      responses:
+        '201':
+          description: Habit created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Max active habits reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/habits/{id}/toggle_today:
+    post:
+      operationId: PostHabitsIdToggleToday
+      tags:
+        - Habit
+      summary: Toggle today's completion status for a habit
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Habit daily log toggled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitToggleTodayResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Habit not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/habits/streaks:
+    get:
+      operationId: GetHabitsStreaks
+      tags:
+        - Habit
+      summary: Get current and longest streaks per habit
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Habit streak list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitStreaksResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/momentum-sprint/enroll:
+    post:
+      operationId: PostMomentumSprintEnroll
+      tags:
+        - Habit
+      summary: Enroll current user in the 14-day Momentum Sprint
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MomentumSprintEnrollRequest'
+      responses:
+        '200':
+          description: Momentum Sprint enrollment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MomentumSprintStatusResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/momentum-sprint/status:
+    get:
+      operationId: GetMomentumSprintStatus
+      tags:
+        - Habit
+      summary: Get current user's Momentum Sprint progress and today's checklist
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Momentum Sprint status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MomentumSprintStatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/momentum-sprint/day-complete:
+    post:
+      operationId: PostMomentumSprintDayComplete
+      tags:
+        - Habit
+      summary: Update today's Momentum Sprint checklist entry completion
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MomentumSprintDayCompleteRequest'
+      responses:
+        '200':
+          description: Momentum Sprint checklist updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MomentumSprintStatusResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sprint enrollment or checklist entry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/nutrition/targets:
+    put:
+      operationId: PutNutritionTargets
+      tags:
+        - Nutrition
+      summary: Create or update nutrition targets for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertNutritionTargetsRequest'
+      responses:
+        '200':
+          description: Nutrition targets upserted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionTargetsResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/nutrition/today:
+    get:
+      operationId: GetNutritionToday
+      tags:
+        - Nutrition
+      summary: Get today's nutrition status for current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Today's nutrition status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionTodayResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/nutrition/checkin:
+    post:
+      operationId: PostNutritionCheckin
+      tags:
+        - Nutrition
+      summary: Create or update a daily nutrition check-in for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NutritionCheckinRequest'
+      responses:
+        '200':
+          description: Nutrition check-in upserted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionCheckinResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/nutrition/weight:
+    post:
+      operationId: PostNutritionWeightEntry
+      tags:
+        - Nutrition
+      summary: Create or update a weight entry for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertWeightEntryRequest'
+      responses:
+        '200':
+          description: Weight entry upserted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionWeightEntryResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      operationId: PutNutritionWeightEntry
+      tags:
+        - Nutrition
+      summary: Create or update a weight entry for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertWeightEntryRequest'
+      responses:
+        '200':
+          description: Weight entry upserted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionWeightEntryResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/nutrition/weight/trend:
+    get:
+      operationId: GetNutritionWeightTrend
+      tags:
+        - Nutrition
+      summary: Get weekly weight trend for the last 8 weeks
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Weekly weight trend
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionWeightTrendResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/nutrition/weekly-checkin:
+    post:
+      operationId: PostNutritionWeeklyCheckin
+      tags:
+        - Nutrition
+      summary: Run weekly nutrition adjustment for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NutritionWeeklyCheckinRequest'
+      responses:
+        '200':
+          description: Weekly nutrition check-in generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionWeeklyCheckinResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Deep nutrition subscription required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/nutrition/weekly-checkin/latest:
+    get:
+      operationId: GetNutritionWeeklyCheckinLatest
+      tags:
+        - Nutrition
+      summary: Get latest weekly nutrition check-in for current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Latest weekly nutrition check-in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionWeeklyCheckinResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Deep nutrition subscription required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No weekly check-in found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/nutrition/meal-plan/generate:
+    post:
+      operationId: PostNutritionMealPlanGenerate
+      tags:
+        - Nutrition
+      summary: Generate meal plan and grocery list for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NutritionMealPlanGenerateRequest'
+      responses:
+        '200':
+          description: Meal plan generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionMealPlanResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Deep nutrition subscription required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/nutrition/meal-plan:
+    get:
+      operationId: GetNutritionMealPlanByWeek
+      tags:
+        - Nutrition
+      summary: Get meal plan and grocery list for a specific week
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: week_start
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Week start date (`YYYY-MM-DD`, Monday UTC).
+      responses:
+        '200':
+          description: Meal plan for week
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionMealPlanResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Deep nutrition subscription required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Meal plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      operationId: PutNutritionMealPlan
+      tags:
+        - Nutrition
+      summary: Create or update a weekly meal plan and grocery list
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NutritionMealPlanUpsertRequest'
+      responses:
+        '200':
+          description: Meal plan saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionMealPlanResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Deep nutrition subscription required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: DeleteNutritionMealPlanByWeek
+      tags:
+        - Nutrition
+      summary: Delete meal plan for a specific week
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: week_start
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Week start date (`YYYY-MM-DD`, Monday UTC).
+      responses:
+        '204':
+          description: Meal plan deleted
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Deep nutrition subscription required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Meal plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/nutrition/meal-plan/latest:
+    get:
+      operationId: GetNutritionMealPlanLatest
+      tags:
+        - Nutrition
+      summary: Get latest meal plan and grocery list for current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Latest meal plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionMealPlanResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Deep nutrition subscription required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Meal plan not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/nutrition/recipes/import:
+    post:
+      operationId: PostNutritionRecipeImport
+      tags:
+        - Nutrition
+      summary: Import recipe from URL via parse and confirm flow
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NutritionRecipeImportRequest'
+      responses:
+        '200':
+          description: Recipe parsed or imported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutritionRecipeImportResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/foods/search:
+    get:
+      operationId: GetFoodsSearch
+      tags:
+        - Food
+      summary: Search foods using configured provider
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          description: Search text (food name, brand, etc).
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 50
+      responses:
+        '200':
+          description: Food search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FoodSearchResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/foods/upc/{code}:
+    get:
+      operationId: GetFoodsUpcCode
+      tags:
+        - Food
+      summary: Lookup food by UPC barcode
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 14
+          description: UPC/EAN code with digits only.
+      responses:
+        '200':
+          description: Food detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FoodResponse'
+        '400':
+          description: Invalid UPC code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Pro entitlement required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Food not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/foods/{id}:
+    get:
+      operationId: GetFoodById
+      tags:
+        - Food
+      summary: Get food detail by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Food detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FoodResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Food not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/food-logs:
+    get:
+      operationId: GetFoodLogs
+      tags:
+        - Food
+      summary: List food logs for a UTC date
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: UTC date key (`YYYY-MM-DD`). Defaults to current UTC date.
+      responses:
+        '200':
+          description: Food logs for date
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FoodLogsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: PostFoodLogs
+      tags:
+        - Food
+      summary: Create a food log entry
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFoodLogRequest'
+      responses:
+        '201':
+          description: Food log created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FoodLogResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Food not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/exercises:
+    get:
+      operationId: GetExercises
+      tags:
+        - Exercise
+      summary: List exercises in the catalog
+      parameters:
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Case-insensitive search across exercise name, slug, and description.
+        - name: equipment
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Equipment filter matching one equipment token in equipment_json.
+        - name: pattern
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Movement pattern filter (for example squat, hinge, push, pull, carry, core).
+      responses:
+        '200':
+          description: Exercise catalog list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExercisesResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/exercises/{id}:
+    get:
+      operationId: GetExerciseById
+      tags:
+        - Exercise
+      summary: Get exercise detail by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Exercise detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseResponse'
+        '404':
+          description: Exercise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/exercises/{id}/biomechanics:
+    get:
+      operationId: GetExerciseBiomechanicsById
+      tags:
+        - Exercise
+      summary: Get biomechanics metadata for an exercise
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Exercise biomechanics payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseBiomechanicsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Biomechanics overlay entitlement required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Exercise biomechanics not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/exercises/{id}/substitutes:
+    get:
+      operationId: GetExerciseSubstitutesById
+      tags:
+        - Exercise
+      summary: Get ranked substitute exercises for a prescribed exercise
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: equipment
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Comma-separated available equipment tokens.
+        - name: constraints
+          in: query
+          required: false
+          schema:
+            type: string
+          description: URL-encoded JSON constraints. Supports keys `equipment` and `injuryFlags`.
+        - name: injuryFlags
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Comma-separated injury or contraindication flags to exclude.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 20
+            default: 5
+      responses:
+        '400':
+          description: Invalid constraints payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Ranked substitutes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseSubstitutesResponse'
+        '404':
+          description: Exercise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/onboarding/status:
+    get:
+      operationId: GetOnboardingStatus
+      tags:
+        - Onboarding
+      summary: Get onboarding completion status for current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Onboarding status for current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingStatusResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/onboarding/profile:
+    put:
+      operationId: PutOnboardingProfile
+      tags:
+        - Onboarding
+      summary: Submit canonical onboarding training profile for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitOnboardingProfileRequest'
+      responses:
+        '200':
+          description: Training profile upserted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingProfileResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/onboarding/plan:
+    get:
+      operationId: GetOnboardingPlan
+      tags:
+        - Onboarding
+      summary: Get onboarding-derived first-week plan and explanation for current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Onboarding plan response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingPlanResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Onboarding plan is not ready yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/profile:
+    put:
+      operationId: PutProfile
+      tags:
+        - Onboarding
+      summary: Create or update onboarding profile for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertProfileRequest'
+      responses:
+        '200':
+          description: Profile upserted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/goals:
+    put:
+      operationId: PutGoals
+      tags:
+        - Onboarding
+      summary: Create or update onboarding goals for current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertGoalsRequest'
+      responses:
+        '200':
+          description: Goals upserted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoalsResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/programs:
+    get:
+      operationId: GetPrograms
+      tags:
+        - Program
+      summary: List program templates
+      responses:
+        '200':
+          description: Program template list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgramsResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/programs/enroll:
+    post:
+      operationId: PostProgramsEnroll
+      tags:
+        - Program
+      summary: Enroll current user into a program template
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgramEnrollRequest'
+      responses:
+        '200':
+          description: Enrollment created or updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgramEnrollmentResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Program not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/programs/current:
+    get:
+      operationId: GetProgramsCurrent
+      tags:
+        - Program
+      summary: Get current week schedule for the enrolled program
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current week schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentProgramScheduleResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No active enrollment or schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/programs/current/sessions:
+    get:
+      operationId: GetProgramsCurrentSessions
+      tags:
+        - Program
+      summary: Get scheduled sessions for the current program in a date range
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Inclusive start date (`YYYY-MM-DD`). Defaults to current UTC date.
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Inclusive end date (`YYYY-MM-DD`). Defaults to 13 days after `from`.
+      responses:
+        '200':
+          description: Scheduled sessions in the requested range
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentProgramSessionsResponse'
+        '400':
+          description: Invalid date range
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No active enrollment or schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/crews:
+    get:
+      operationId: GetCrews
+      tags:
+        - Community
+      summary: List private crews for current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Crew list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrewsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: PostCrews
+      tags:
+        - Community
+      summary: Create a private crew and join as owner
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCrewRequest'
+      responses:
+        '201':
+          description: Crew created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrewResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/crews/{id}:
+    get:
+      operationId: GetCrewsId
+      tags:
+        - Community
+      summary: Get private crew detail for current user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Crew detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrewResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Crew not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/crews/{id}/invites:
+    post:
+      operationId: PostCrewsIdInvites
+      tags:
+        - Community
+      summary: Create an invite code for a crew
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCrewInviteRequest'
+      responses:
+        '201':
+          description: Invite created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrewInviteResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Crew not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/crews/join:
+    post:
+      operationId: PostCrewsJoin
+      tags:
+        - Community
+      summary: Join a private crew using an invite code
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinCrewByInviteRequest'
+      responses:
+        '200':
+          description: Crew joined
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinCrewResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Invite not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/coach-sessions:
+    get:
+      operationId: GetCoachSessions
+      tags:
+        - CoachSession
+      summary: List coach-led sessions available to current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Session list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoachSessionsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/coach-sessions/{id}:
+    get:
+      operationId: GetCoachSessionsId
+      tags:
+        - CoachSession
+      summary: Get coach-led session detail with signed media URLs and cues
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Session detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoachSessionResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/workouts/start:
+    post:
+      operationId: PostWorkoutsStart
+      tags:
+        - Workout
+      summary: Start a new workout for the current user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartWorkoutRequest'
+      responses:
+        '201':
+          description: Workout started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkoutResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Program session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/workouts/{workout_id}/add_set:
+    post:
+      operationId: PostWorkoutsWorkoutIdAddSet
+      tags:
+        - Workout
+      summary: Log a completed set into a workout exercise
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workout_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddWorkoutSetRequest'
+      responses:
+        '201':
+          description: Workout set created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkoutSetResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Workout or workout exercise not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Workout already completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/workouts/{workout_id}/complete:
+    post:
+      operationId: PostWorkoutsWorkoutIdComplete
+      tags:
+        - Workout
+      summary: Mark a workout as completed
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workout_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteWorkoutRequest'
+      responses:
+        '200':
+          description: Workout completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkoutResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Workout not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Workout already completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/workouts/history:
+    get:
+      operationId: GetWorkoutsHistory
+      tags:
+        - Workout
+      summary: List workout history for the current user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 100
+          description: Max workouts to return (default 20).
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Opaque pagination cursor from a previous response.
+      responses:
+        '200':
+          description: Workout history page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkoutHistoryResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/workouts/{id}:
+    get:
+      operationId: GetWorkoutsId
+      tags:
+        - Workout
+      summary: Get workout detail by ID for current user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Workout detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkoutResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Workout not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    EntitlementKey:
+      type: string
+      enum:
+        - barcode_scan
+        - deep_nutrition
+        - biomechanics_overlays
+        - form_check_upload
+        - coach_tier_pro
+        - coach_tier_elite
+
+    CoachTier:
+      type: string
+      enum:
+        - free
+        - pro
+        - elite
+
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - isPro
+        - entitlements
+        - coachTier
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        email:
+          type: string
+          format: email
+          example: user@atlas.local
+        isPro:
+          type: boolean
+          description: Whether the user has an active Pro entitlement.
+        entitlements:
+          type: array
+          description: Active entitlement keys for the user.
+          items:
+            $ref: '#/components/schemas/EntitlementKey'
+        coachTier:
+          $ref: '#/components/schemas/CoachTier'
+        createdAt:
+          type: string
+          format: date-time
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - service
+        - env
+        - timestamp
+      properties:
+        status:
+          type: string
+          example: ok
+        service:
+          type: string
+          example: atlas-api
+        env:
+          type: string
+          example: local
+        timestamp:
+          type: string
+          format: date-time
+
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    LogoutRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+
+    RefreshRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+
+    TokenResponse:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+        - tokenType
+        - expiresIn
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+          format: int32
+          example: 900
+
+    AuthResponse:
+      type: object
+      required:
+        - user
+        - tokens
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        tokens:
+          $ref: '#/components/schemas/TokenResponse'
+
+    UserResponse:
+      type: object
+      required:
+        - user
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+
+    BillingPlatform:
+      type: string
+      enum:
+        - ios
+        - android
+
+    SubscriptionStatus:
+      type: string
+      enum:
+        - active
+        - expired
+        - canceled
+        - grace_period
+        - refunded
+
+    Subscription:
+      type: object
+      required:
+        - id
+        - userId
+        - platform
+        - productId
+        - status
+        - rawReceipt
+        - transactionId
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        platform:
+          $ref: '#/components/schemas/BillingPlatform'
+        productId:
+          type: string
+        status:
+          $ref: '#/components/schemas/SubscriptionStatus'
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        transactionId:
+          type: string
+        originalTransactionId:
+          type: string
+          nullable: true
+        rawReceipt:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    BillingVerifyRequest:
+      type: object
+      required:
+        - platform
+        - productId
+        - receiptToken
+      properties:
+        platform:
+          $ref: '#/components/schemas/BillingPlatform'
+        productId:
+          type: string
+        receiptToken:
+          type: string
+          description: Store receipt (iOS) or purchase token (Android).
+        transactionId:
+          type: string
+          nullable: true
+        originalTransactionId:
+          type: string
+          nullable: true
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        restore:
+          type: boolean
+          default: false
+
+    BillingVerifyResponse:
+      type: object
+      required:
+        - subscription
+        - entitlements
+        - coachTier
+        - isPro
+        - restored
+      properties:
+        subscription:
+          $ref: '#/components/schemas/Subscription'
+        entitlements:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntitlementKey'
+        coachTier:
+          $ref: '#/components/schemas/CoachTier'
+        isPro:
+          type: boolean
+        restored:
+          type: boolean
+
+    ConsentType:
+      type: string
+      enum:
+        - camera_form_check
+        - progress_photos
+        - share_to_coach
+        - movement_screen_camera
+        - form_check_local
+        - form_check_upload
+        - product_analytics
+
+    Consent:
+      type: object
+      required:
+        - id
+        - consentType
+        - grantedAt
+        - metadataJson
+      properties:
+        id:
+          type: string
+          format: uuid
+        consentType:
+          $ref: '#/components/schemas/ConsentType'
+        grantedAt:
+          type: string
+          format: date-time
+        revokedAt:
+          type: string
+          format: date-time
+          nullable: true
+        metadataJson:
+          type: object
+          additionalProperties: true
+
+    ConsentsResponse:
+      type: object
+      required:
+        - consents
+      properties:
+        consents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Consent'
+
+    ConsentResponse:
+      type: object
+      required:
+        - consent
+      properties:
+        consent:
+          $ref: '#/components/schemas/Consent'
+
+    GrantConsentRequest:
+      type: object
+      required:
+        - consentType
+      properties:
+        consentType:
+          $ref: '#/components/schemas/ConsentType'
+        metadataJson:
+          type: object
+          additionalProperties: true
+
+    RevokeConsentRequest:
+      type: object
+      required:
+        - consentType
+      properties:
+        consentType:
+          $ref: '#/components/schemas/ConsentType'
+
+    FormCheckMovementType:
+      type: string
+      enum:
+        - squat
+        - hinge
+        - lunge
+        - push
+        - pull
+
+    FormCheckResultSummary:
+      type: object
+      required:
+        - overallScore
+        - rangeOfMotionScore
+        - kneeTrackingScore
+        - symmetryScore
+        - rangeOfMotionDegrees
+        - repetitionCount
+        - feedback
+      properties:
+        overallScore:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+        rangeOfMotionScore:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+        kneeTrackingScore:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+        symmetryScore:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 100
+        rangeOfMotionDegrees:
+          type: number
+          format: float
+          minimum: 0
+        repetitionCount:
+          type: integer
+          format: int32
+          minimum: 0
+        feedback:
+          type: array
+          items:
+            type: string
+
+    FormCheckUploadRequest:
+      type: object
+      required:
+        - movementType
+        - recordingStartedAt
+        - recordingEndedAt
+        - summary
+      properties:
+        movementType:
+          $ref: '#/components/schemas/FormCheckMovementType'
+        recordingStartedAt:
+          type: string
+          format: date-time
+        recordingEndedAt:
+          type: string
+          format: date-time
+        summary:
+          $ref: '#/components/schemas/FormCheckResultSummary'
+        storageKey:
+          type: string
+          description: Optional storage key/URI for persisted media or artifact package.
+        metadataJson:
+          type: object
+          additionalProperties: true
+
+    FormCheckUpload:
+      type: object
+      required:
+        - id
+        - userId
+        - movementType
+        - recordingStartedAt
+        - recordingEndedAt
+        - summary
+        - storageKey
+        - metadataJson
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        movementType:
+          $ref: '#/components/schemas/FormCheckMovementType'
+        recordingStartedAt:
+          type: string
+          format: date-time
+        recordingEndedAt:
+          type: string
+          format: date-time
+        summary:
+          $ref: '#/components/schemas/FormCheckResultSummary'
+        storageKey:
+          type: string
+        metadataJson:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+
+    FormCheckUploadResponse:
+      type: object
+      required:
+        - upload
+      properties:
+        upload:
+          $ref: '#/components/schemas/FormCheckUpload'
+
+    AppEventName:
+      type: string
+      enum:
+        - onboarding_started
+        - onboarding_goal_selected
+        - onboarding_equipment_selected
+        - onboarding_schedule_selected
+        - onboarding_completed
+        - workout_completed
+
+    PostEventRequest:
+      type: object
+      required:
+        - eventName
+        - eventTime
+        - consentGranted
+      properties:
+        eventName:
+          $ref: '#/components/schemas/AppEventName'
+        eventTime:
+          type: string
+          format: date-time
+        consentGranted:
+          type: boolean
+          description: |
+            Client-side analytics opt-in state at event capture time.
+        properties:
+          type: object
+          additionalProperties: true
+
+    EventIngestResponse:
+      type: object
+      required:
+        - accepted
+      properties:
+        accepted:
+          type: boolean
+        eventId:
+          type: string
+          format: uuid
+          nullable: true
+
+    ExerciseMedia:
+      type: object
+      required:
+        - id
+        - exerciseId
+        - mediaType
+        - uri
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        exerciseId:
+          type: string
+          format: uuid
+        mediaType:
+          type: string
+          enum:
+            - image
+            - video
+        uri:
+          type: string
+          description: Local file path for MVP.
+        thumbnailUri:
+          type: string
+          nullable: true
+        durationSeconds:
+          type: integer
+          format: int32
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    Exercise:
+      type: object
+      required:
+        - id
+        - slug
+        - name
+        - primaryMuscleGroup
+        - primaryMuscles
+        - secondaryMuscles
+        - movementPattern
+        - contraindications
+        - equipment
+        - difficulty
+        - description
+        - createdAt
+        - media
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        primaryMuscleGroup:
+          type: string
+        primaryMuscles:
+          type: array
+          items:
+            type: string
+        secondaryMuscles:
+          type: array
+          items:
+            type: string
+        movementPattern:
+          type: string
+        contraindications:
+          type: array
+          items:
+            type: string
+        equipment:
+          type: array
+          items:
+            type: string
+        difficulty:
+          type: string
+          enum:
+            - beginner
+            - intermediate
+            - advanced
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExerciseMedia'
+
+    ExerciseSubstituteWhy:
+      type: object
+      required:
+        - matchedPattern
+        - matchedMuscles
+        - equipmentFit
+      properties:
+        matchedPattern:
+          type: array
+          items:
+            type: string
+        matchedMuscles:
+          type: array
+          items:
+            type: string
+        equipmentFit:
+          type: string
+          enum:
+            - exact
+            - partial
+            - not_applicable
+
+    ExerciseSubstitute:
+      type: object
+      required:
+        - exercise
+        - why
+      properties:
+        exercise:
+          $ref: '#/components/schemas/Exercise'
+        why:
+          $ref: '#/components/schemas/ExerciseSubstituteWhy'
+
+    ExerciseSubstitutesResponse:
+      type: object
+      required:
+        - substitutes
+      properties:
+        substitutes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExerciseSubstitute'
+
+    ExercisesResponse:
+      type: object
+      required:
+        - exercises
+      properties:
+        exercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/Exercise'
+
+    ExerciseResponse:
+      type: object
+      required:
+        - exercise
+      properties:
+        exercise:
+          $ref: '#/components/schemas/Exercise'
+
+    ExerciseBiomechanics:
+      type: object
+      required:
+        - exerciseId
+        - exerciseSlug
+        - exerciseName
+        - animationAssetKey
+        - animationAssetUri
+        - rigVersion
+        - muscleHighlights
+        - jointAngles
+        - metadata
+      properties:
+        exerciseId:
+          type: string
+          format: uuid
+        exerciseSlug:
+          type: string
+        exerciseName:
+          type: string
+        animationAssetKey:
+          type: string
+        animationAssetUri:
+          type: string
+        rigVersion:
+          type: string
+        muscleHighlights:
+          type: array
+          items:
+            $ref: '#/components/schemas/MuscleHighlight'
+        jointAngles:
+          type: array
+          items:
+            $ref: '#/components/schemas/JointAngle'
+        metadata:
+          type: object
+          additionalProperties: true
+
+    MuscleHighlight:
+      type: object
+      required:
+        - muscleGroup
+        - activationLevel
+        - role
+      properties:
+        muscleGroup:
+          type: string
+        activationLevel:
+          type: number
+          format: float
+        role:
+          type: string
+        colorHex:
+          type: string
+
+    JointAngle:
+      type: object
+      required:
+        - joint
+        - minDegrees
+        - maxDegrees
+        - targetDegrees
+        - unit
+      properties:
+        joint:
+          type: string
+        minDegrees:
+          type: number
+          format: float
+        maxDegrees:
+          type: number
+          format: float
+        targetDegrees:
+          type: number
+          format: float
+        unit:
+          type: string
+
+    ExerciseBiomechanicsResponse:
+      type: object
+      required:
+        - biomechanics
+      properties:
+        biomechanics:
+          $ref: '#/components/schemas/ExerciseBiomechanics'
+
+    UserProfile:
+      type: object
+      required:
+        - userId
+        - displayName
+        - sex
+        - heightCm
+        - weightKg
+        - experienceLevel
+        - createdAt
+        - updatedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+        displayName:
+          type: string
+        sex:
+          type: string
+        heightCm:
+          type: integer
+          format: int32
+        weightKg:
+          type: number
+          format: float
+        experienceLevel:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserGoals:
+      type: object
+      required:
+        - userId
+        - primaryGoal
+        - daysPerWeek
+        - sessionDurationMinutes
+        - equipmentAccessJson
+        - constraintsJson
+        - injuriesLimitationsJson
+        - modalityPreferencesJson
+        - createdAt
+        - updatedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+        primaryGoal:
+          type: string
+        secondaryGoal:
+          type: string
+          nullable: true
+        daysPerWeek:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 6
+        sessionDurationMinutes:
+          type: integer
+          format: int32
+          minimum: 15
+          maximum: 120
+        equipmentAccessJson:
+          type: array
+          items:
+            type: string
+        constraintsJson:
+          type: object
+          additionalProperties: true
+        injuriesLimitationsJson:
+          type: array
+          items:
+            type: string
+        modalityPreferencesJson:
+          type: array
+          items:
+            type: string
+        priorTrainingHistoryJson:
+          type: object
+          nullable: true
+          additionalProperties: true
+        readinessSignalsJson:
+          type: object
+          nullable: true
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UpsertProfileRequest:
+      type: object
+      required:
+        - displayName
+        - sex
+        - heightCm
+        - weightKg
+        - experienceLevel
+      properties:
+        displayName:
+          type: string
+        sex:
+          type: string
+        heightCm:
+          type: integer
+          format: int32
+        weightKg:
+          type: number
+          format: float
+        experienceLevel:
+          type: string
+
+    UpsertGoalsRequest:
+      type: object
+      required:
+        - primaryGoal
+        - daysPerWeek
+        - sessionDurationMinutes
+        - equipmentAccessJson
+        - constraintsJson
+        - injuriesLimitationsJson
+        - modalityPreferencesJson
+      properties:
+        primaryGoal:
+          type: string
+        secondaryGoal:
+          type: string
+          nullable: true
+        daysPerWeek:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 6
+        sessionDurationMinutes:
+          type: integer
+          format: int32
+          minimum: 15
+          maximum: 120
+        equipmentAccessJson:
+          type: array
+          items:
+            type: string
+        constraintsJson:
+          type: object
+          additionalProperties: true
+        injuriesLimitationsJson:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        modalityPreferencesJson:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        priorTrainingHistoryJson:
+          type: object
+          nullable: true
+          additionalProperties: true
+        readinessSignalsJson:
+          type: object
+          nullable: true
+          additionalProperties: true
+
+    TrainingProfile:
+      type: object
+      required:
+        - primaryGoal
+        - daysPerWeek
+        - sessionDurationMinutes
+        - equipmentAccess
+        - scheduleDays
+        - injuriesLimitationsFlags
+        - modalityPreferences
+      properties:
+        primaryGoal:
+          type: string
+        secondaryGoal:
+          type: string
+          nullable: true
+        daysPerWeek:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 6
+        sessionDurationMinutes:
+          type: integer
+          format: int32
+          minimum: 15
+          maximum: 120
+        equipmentAccess:
+          type: array
+          items:
+            type: string
+        scheduleDays:
+          type: array
+          items:
+            type: string
+        injuriesLimitationsFlags:
+          type: array
+          items:
+            type: string
+        modalityPreferences:
+          type: array
+          items:
+            type: string
+        priorTrainingHistory:
+          type: object
+          nullable: true
+          additionalProperties: true
+        readinessSignals:
+          type: object
+          nullable: true
+          additionalProperties: true
+
+    SubmitOnboardingProfileRequest:
+      type: object
+      required:
+        - primaryGoal
+        - daysPerWeek
+        - sessionDurationMinutes
+        - equipmentAccessJson
+        - constraintsJson
+        - injuriesLimitationsFlags
+        - modalityPreferences
+      properties:
+        primaryGoal:
+          type: string
+        secondaryGoal:
+          type: string
+          nullable: true
+        daysPerWeek:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 6
+        sessionDurationMinutes:
+          type: integer
+          format: int32
+          minimum: 15
+          maximum: 120
+        equipmentAccessJson:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        constraintsJson:
+          type: object
+          additionalProperties: true
+        injuriesLimitationsFlags:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        modalityPreferences:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        priorTrainingHistory:
+          type: object
+          nullable: true
+          additionalProperties: true
+        readinessSignals:
+          type: object
+          nullable: true
+          additionalProperties: true
+
+    ProfileResponse:
+      type: object
+      required:
+        - profile
+      properties:
+        profile:
+          $ref: '#/components/schemas/UserProfile'
+
+    GoalsResponse:
+      type: object
+      required:
+        - goals
+      properties:
+        goals:
+          $ref: '#/components/schemas/UserGoals'
+
+    OnboardingProfileResponse:
+      type: object
+      required:
+        - trainingProfile
+      properties:
+        trainingProfile:
+          $ref: '#/components/schemas/TrainingProfile'
+
+    OnboardingPlanResponse:
+      type: object
+      required:
+        - trainingProfile
+        - firstWeekPlan
+        - explanation
+      properties:
+        trainingProfile:
+          $ref: '#/components/schemas/TrainingProfile'
+        firstWeekPlan:
+          $ref: '#/components/schemas/FirstWeekPlanSummary'
+        explanation:
+          type: string
+
+    OnboardingStatusResponse:
+      type: object
+      required:
+        - profileCompleted
+        - goalsCompleted
+        - onboardingCompleted
+      properties:
+        profileCompleted:
+          type: boolean
+        goalsCompleted:
+          type: boolean
+          description: True when goal, equipment access, and schedule day selections are all present.
+        onboardingCompleted:
+          type: boolean
+          description: True when required onboarding selections are complete.
+        firstWeekPlan:
+          description: Present when onboarding is complete.
+          $ref: '#/components/schemas/FirstWeekPlanSummary'
+        trainingProfile:
+          description: Canonical training profile derived from onboarding inputs.
+          $ref: '#/components/schemas/TrainingProfile'
+        planExplanation:
+          type: string
+          description: Explainable rationale for the first-week plan.
+
+    FirstWeekPlanDay:
+      type: object
+      required:
+        - day
+        - sessionName
+      properties:
+        day:
+          type: string
+        sessionName:
+          type: string
+
+    FirstWeekPlanSummary:
+      type: object
+      required:
+        - days
+      properties:
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/FirstWeekPlanDay'
+
+    Program:
+      type: object
+      required:
+        - id
+        - slug
+        - name
+        - description
+        - goalTags
+        - level
+        - weeksLength
+        - weeklyFrequency
+        - blocks
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        goalTags:
+          type: array
+          items:
+            type: string
+        level:
+          type: string
+        weeksLength:
+          type: integer
+          format: int32
+        weeklyFrequency:
+          type: integer
+          format: int32
+        blocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProgramBlock'
+        createdAt:
+          type: string
+          format: date-time
+
+    ProgramBlock:
+      type: object
+      required:
+        - id
+        - weekIndex
+        - sessionCount
+        - sessionDays
+      properties:
+        id:
+          type: string
+          format: uuid
+        weekIndex:
+          type: integer
+          format: int32
+        sessionCount:
+          type: integer
+          format: int32
+        sessionDays:
+          type: array
+          items:
+            type: integer
+            format: int32
+
+    ProgramsResponse:
+      type: object
+      required:
+        - programs
+      properties:
+        programs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Program'
+
+    ProgramEnrollRequest:
+      type: object
+      required:
+        - program_id
+      properties:
+        program_id:
+          type: string
+          format: uuid
+
+    ProgramEnrollment:
+      type: object
+      required:
+        - id
+        - userId
+        - programId
+        - startDate
+        - currentWeek
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        programId:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        currentWeek:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+
+    ProgramEnrollmentResponse:
+      type: object
+      required:
+        - enrollment
+      properties:
+        enrollment:
+          $ref: '#/components/schemas/ProgramEnrollment'
+
+    ProgramPrescription:
+      type: object
+      required:
+        - sets
+        - reps_range
+        - rest_seconds
+      properties:
+        sets:
+          type: integer
+          format: int32
+        reps_range:
+          type: string
+        rest_seconds:
+          type: integer
+          format: int32
+        rpe_target:
+          type: number
+          format: float
+          nullable: true
+
+    ProgramSessionExercise:
+      type: object
+      required:
+        - id
+        - orderIndex
+        - exerciseId
+        - exerciseSlug
+        - exerciseName
+        - prescription
+        - substitutionCandidates
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderIndex:
+          type: integer
+          format: int32
+        exerciseId:
+          type: string
+          format: uuid
+        exerciseSlug:
+          type: string
+        exerciseName:
+          type: string
+        prescription:
+          $ref: '#/components/schemas/ProgramPrescription'
+        recommendedLoadKg:
+          type: number
+          format: float
+          nullable: true
+        adjustmentReasons:
+          type: array
+          items:
+            type: string
+        progressionWhy:
+          type: string
+          nullable: true
+        substitutionCandidates:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProgramSubstitutionCandidate'
+
+    ProgramSubstitutionCandidate:
+      type: object
+      required:
+        - exerciseId
+        - exerciseSlug
+        - exerciseName
+        - movementPattern
+        - equipment
+      properties:
+        exerciseId:
+          type: string
+          format: uuid
+        exerciseSlug:
+          type: string
+        exerciseName:
+          type: string
+        movementPattern:
+          type: string
+        equipment:
+          type: array
+          items:
+            type: string
+
+    ProgramSession:
+      type: object
+      required:
+        - id
+        - dayOfWeek
+        - name
+        - exercises
+      properties:
+        id:
+          type: string
+          format: uuid
+        dayOfWeek:
+          type: integer
+          format: int32
+        name:
+          type: string
+        exercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProgramSessionExercise'
+
+    ProgramWeekSchedule:
+      type: object
+      required:
+        - id
+        - weekIndex
+        - sessions
+      properties:
+        id:
+          type: string
+          format: uuid
+        weekIndex:
+          type: integer
+          format: int32
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProgramSession'
+
+    ProgramScheduleContext:
+      type: object
+      required:
+        - blockWeekIndex
+        - templateWeekIndex
+        - totalWeeks
+        - blockStartDate
+        - blockEndDate
+      properties:
+        blockWeekIndex:
+          type: integer
+          format: int32
+        templateWeekIndex:
+          type: integer
+          format: int32
+        totalWeeks:
+          type: integer
+          format: int32
+        blockStartDate:
+          type: string
+          format: date
+        blockEndDate:
+          type: string
+          format: date
+
+    CurrentProgramScheduleResponse:
+      type: object
+      required:
+        - enrollment
+        - program
+        - context
+        - week
+      properties:
+        enrollment:
+          $ref: '#/components/schemas/ProgramEnrollment'
+        program:
+          $ref: '#/components/schemas/Program'
+        context:
+          $ref: '#/components/schemas/ProgramScheduleContext'
+        week:
+          $ref: '#/components/schemas/ProgramWeekSchedule'
+
+    ProgramScheduledSession:
+      type: object
+      required:
+        - programSessionId
+        - blockId
+        - blockWeekIndex
+        - scheduledDate
+        - dayOfWeek
+        - name
+        - exercises
+      properties:
+        programSessionId:
+          type: string
+          format: uuid
+        blockId:
+          type: string
+          format: uuid
+        blockWeekIndex:
+          type: integer
+          format: int32
+        scheduledDate:
+          type: string
+          format: date
+        dayOfWeek:
+          type: integer
+          format: int32
+        name:
+          type: string
+        exercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProgramSessionExercise'
+
+    CurrentProgramSessionsResponse:
+      type: object
+      required:
+        - enrollment
+        - program
+        - context
+        - sessions
+      properties:
+        enrollment:
+          $ref: '#/components/schemas/ProgramEnrollment'
+        program:
+          $ref: '#/components/schemas/Program'
+        context:
+          $ref: '#/components/schemas/ProgramScheduleContext'
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProgramScheduledSession'
+
+    CrewRole:
+      type: string
+      enum:
+        - owner
+        - member
+
+    Crew:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - createdByUserId
+        - isPrivate
+        - myRole
+        - memberCount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        createdByUserId:
+          type: string
+          format: uuid
+        isPrivate:
+          type: boolean
+          description: Crews are private by default.
+        sharedPlanUrl:
+          type: string
+          nullable: true
+        sharedHabitsUrl:
+          type: string
+          nullable: true
+        myRole:
+          $ref: '#/components/schemas/CrewRole'
+        memberCount:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CrewMember:
+      type: object
+      required:
+        - userId
+        - email
+        - role
+        - joinedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        displayName:
+          type: string
+          nullable: true
+        role:
+          $ref: '#/components/schemas/CrewRole'
+        joinedAt:
+          type: string
+          format: date-time
+
+    CrewsResponse:
+      type: object
+      required:
+        - crews
+      properties:
+        crews:
+          type: array
+          items:
+            $ref: '#/components/schemas/Crew'
+
+    CrewResponse:
+      type: object
+      required:
+        - crew
+        - members
+      properties:
+        crew:
+          $ref: '#/components/schemas/Crew'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/CrewMember'
+
+    CreateCrewRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 80
+        description:
+          type: string
+          default: ''
+        isPrivate:
+          type: boolean
+          default: true
+        sharedPlanUrl:
+          type: string
+        sharedHabitsUrl:
+          type: string
+
+    CreateCrewInviteRequest:
+      type: object
+      properties:
+        maxUses:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 1
+        expiresAt:
+          type: string
+          format: date-time
+
+    CrewInvite:
+      type: object
+      required:
+        - id
+        - crewId
+        - inviteCode
+        - invitedByUserId
+        - maxUses
+        - usesCount
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        crewId:
+          type: string
+          format: uuid
+        inviteCode:
+          type: string
+        invitedByUserId:
+          type: string
+          format: uuid
+        maxUses:
+          type: integer
+          format: int32
+        usesCount:
+          type: integer
+          format: int32
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    CrewInviteResponse:
+      type: object
+      required:
+        - invite
+      properties:
+        invite:
+          $ref: '#/components/schemas/CrewInvite'
+
+    JoinCrewByInviteRequest:
+      type: object
+      required:
+        - inviteCode
+      properties:
+        inviteCode:
+          type: string
+          minLength: 4
+          maxLength: 64
+
+    JoinCrewResponse:
+      type: object
+      required:
+        - crew
+        - joined
+      properties:
+        crew:
+          $ref: '#/components/schemas/Crew'
+        joined:
+          type: boolean
+          description: True if membership was newly created.
+
+    CoachSessionAsset:
+      type: object
+      required:
+        - id
+        - assetType
+        - storageKey
+        - signedUrl
+        - mimeType
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        assetType:
+          type: string
+          enum:
+            - video
+            - thumbnail
+            - captions
+        storageKey:
+          type: string
+        signedUrl:
+          type: string
+        mimeType:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    CueTimelineItem:
+      type: object
+      required:
+        - id
+        - cueIndex
+        - startMs
+        - endMs
+        - cueText
+        - biomechanicsDefinitionType
+        - biomechanicsDefinitionKey
+      properties:
+        id:
+          type: string
+          format: uuid
+        cueIndex:
+          type: integer
+          format: int32
+        startMs:
+          type: integer
+          format: int32
+        endMs:
+          type: integer
+          format: int32
+        cueText:
+          type: string
+        biomechanicsExerciseId:
+          type: string
+          format: uuid
+          nullable: true
+        biomechanicsDefinitionType:
+          type: string
+          enum:
+            - muscle_group
+            - joint_angle
+            - movement_pattern
+        biomechanicsDefinitionKey:
+          type: string
+
+    CoachSessionSummary:
+      type: object
+      required:
+        - id
+        - crewId
+        - crewName
+        - title
+        - description
+        - coachName
+        - durationSeconds
+        - requiredTier
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        crewId:
+          type: string
+          format: uuid
+        crewName:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        coachName:
+          type: string
+        durationSeconds:
+          type: integer
+          format: int32
+        requiredTier:
+          $ref: '#/components/schemas/CoachTier'
+        createdAt:
+          type: string
+          format: date-time
+
+    CoachSessionsResponse:
+      type: object
+      required:
+        - sessions
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoachSessionSummary'
+
+    CoachSession:
+      allOf:
+        - $ref: '#/components/schemas/CoachSessionSummary'
+        - type: object
+          required:
+            - assets
+            - cues
+          properties:
+            assets:
+              type: array
+              items:
+                $ref: '#/components/schemas/CoachSessionAsset'
+            cues:
+              type: array
+              items:
+                $ref: '#/components/schemas/CueTimelineItem'
+
+    CoachSessionResponse:
+      type: object
+      required:
+        - session
+      properties:
+        session:
+          $ref: '#/components/schemas/CoachSession'
+
+    StartWorkoutRequest:
+      type: object
+      properties:
+        program_session_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    AddWorkoutSetRequest:
+      type: object
+      required:
+        - idempotency_key
+        - workout_exercise_id
+        - reps
+        - weight_kg
+      properties:
+        idempotency_key:
+          type: string
+          minLength: 1
+          description: Client-generated key used to dedupe retried set submissions.
+        workout_exercise_id:
+          type: string
+          format: uuid
+        reps:
+          type: integer
+          format: int32
+          minimum: 1
+        weight_kg:
+          type: number
+          format: float
+          minimum: 0
+        rpe:
+          type: number
+          format: float
+          nullable: true
+
+    CompleteWorkoutRequest:
+      type: object
+      properties:
+        notes:
+          type: string
+
+    WorkoutSet:
+      type: object
+      required:
+        - id
+        - workoutExerciseId
+        - setIndex
+        - reps
+        - weightKg
+        - completedAt
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        workoutExerciseId:
+          type: string
+          format: uuid
+        setIndex:
+          type: integer
+          format: int32
+        reps:
+          type: integer
+          format: int32
+        weightKg:
+          type: number
+          format: float
+        rpe:
+          type: number
+          format: float
+          nullable: true
+        completedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    WorkoutExercise:
+      type: object
+      required:
+        - id
+        - workoutId
+        - exerciseId
+        - orderIndex
+        - plannedJson
+        - actualJson
+        - createdAt
+        - exerciseSlug
+        - exerciseName
+        - sets
+      properties:
+        id:
+          type: string
+          format: uuid
+        workoutId:
+          type: string
+          format: uuid
+        exerciseId:
+          type: string
+          format: uuid
+        orderIndex:
+          type: integer
+          format: int32
+        plannedJson:
+          type: object
+          additionalProperties: true
+        actualJson:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        exerciseSlug:
+          type: string
+        exerciseName:
+          type: string
+        sets:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkoutSet'
+
+    Workout:
+      type: object
+      required:
+        - id
+        - userId
+        - startedAt
+        - notes
+        - createdAt
+        - exercises
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        programSessionId:
+          type: string
+          format: uuid
+          nullable: true
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        exercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkoutExercise'
+
+    WorkoutSummary:
+      type: object
+      required:
+        - id
+        - userId
+        - startedAt
+        - notes
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        programSessionId:
+          type: string
+          format: uuid
+          nullable: true
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    WorkoutResponse:
+      type: object
+      required:
+        - workout
+      properties:
+        workout:
+          $ref: '#/components/schemas/Workout'
+
+    WorkoutSetResponse:
+      type: object
+      required:
+        - set
+      properties:
+        set:
+          $ref: '#/components/schemas/WorkoutSet'
+
+    WorkoutHistoryResponse:
+      type: object
+      required:
+        - workouts
+      properties:
+        workouts:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkoutSummary'
+        next_cursor:
+          type: string
+          nullable: true
+
+    CoreLiftPR:
+      type: object
+      properties:
+        best5RmEstimateKg:
+          type: number
+          format: float
+          nullable: true
+        bestSetReps:
+          type: integer
+          format: int32
+          nullable: true
+        bestSetWeightKg:
+          type: number
+          format: float
+          nullable: true
+
+    CoreLiftPRSummary:
+      type: object
+      required:
+        - squat
+        - bench
+        - deadlift
+      properties:
+        squat:
+          $ref: '#/components/schemas/CoreLiftPR'
+        bench:
+          $ref: '#/components/schemas/CoreLiftPR'
+        deadlift:
+          $ref: '#/components/schemas/CoreLiftPR'
+
+    MainLiftEstimatedOneRM:
+      type: object
+      description: Main-lift estimate using the Epley formula (estimated 1RM = weight * (1 + reps/30)).
+      properties:
+        estimatedOneRmKg:
+          type: number
+          format: float
+          nullable: true
+        bestSetReps:
+          type: integer
+          format: int32
+          nullable: true
+        bestSetWeightKg:
+          type: number
+          format: float
+          nullable: true
+        achievedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    MainLiftEstimatedOneRMSummary:
+      type: object
+      required:
+        - squat
+        - bench
+        - deadlift
+      properties:
+        squat:
+          $ref: '#/components/schemas/MainLiftEstimatedOneRM'
+        bench:
+          $ref: '#/components/schemas/MainLiftEstimatedOneRM'
+        deadlift:
+          $ref: '#/components/schemas/MainLiftEstimatedOneRM'
+
+    DashboardPREvent:
+      type: object
+      required:
+        - lift
+        - completedAt
+        - reps
+        - weightKg
+        - estimatedOneRmKg
+      properties:
+        lift:
+          type: string
+          enum: [squat, bench, deadlift]
+        completedAt:
+          type: string
+          format: date-time
+        reps:
+          type: integer
+          format: int32
+        weightKg:
+          type: number
+          format: float
+        estimatedOneRmKg:
+          type: number
+          format: float
+        previousEstimatedOneRmKg:
+          type: number
+          format: float
+          nullable: true
+        improvementKg:
+          type: number
+          format: float
+          nullable: true
+
+    WeeklyMuscleGroupVolume:
+      type: object
+      required:
+        - weekStartDate
+        - volumeByMuscleGroup
+      properties:
+        weekStartDate:
+          type: string
+          format: date
+        volumeByMuscleGroup:
+          type: object
+          additionalProperties:
+            type: number
+            format: float
+
+    WeeklyVolumeTrendPoint:
+      type: object
+      required:
+        - weekStartDate
+        - totalVolumeKg
+      properties:
+        weekStartDate:
+          type: string
+          format: date
+        totalVolumeKg:
+          type: number
+          format: float
+
+    AdherenceStreak:
+      type: object
+      required:
+        - currentDays
+        - longestDays
+      properties:
+        currentDays:
+          type: integer
+          format: int32
+        longestDays:
+          type: integer
+          format: int32
+
+    AdherenceStreaks:
+      type: object
+      required:
+        - training
+        - protein
+      properties:
+        training:
+          $ref: '#/components/schemas/AdherenceStreak'
+        protein:
+          $ref: '#/components/schemas/AdherenceStreak'
+
+    WeightTrendPoint:
+      type: object
+      required:
+        - date
+        - weightKg
+      properties:
+        date:
+          type: string
+          format: date
+        weightKg:
+          type: number
+          format: float
+
+    ReadinessSelfReportPoint:
+      type: object
+      required:
+        - date
+        - readinessScore
+        - energyLevel
+        - sleepQuality
+        - stressLevel
+      properties:
+        date:
+          type: string
+          format: date
+        readinessScore:
+          type: number
+          format: float
+        energyLevel:
+          type: integer
+          format: int32
+        sleepQuality:
+          type: integer
+          format: int32
+        stressLevel:
+          type: integer
+          format: int32
+
+    MacroNutrientTotals:
+      type: object
+      required:
+        - calories_kcal
+        - protein_g
+        - carbs_g
+        - fat_g
+      properties:
+        calories_kcal:
+          type: number
+          format: float
+        protein_g:
+          type: number
+          format: float
+        carbs_g:
+          type: number
+          format: float
+        fat_g:
+          type: number
+          format: float
+
+    NutrientValues:
+      type: object
+      properties:
+        calories_kcal:
+          type: number
+          format: float
+          nullable: true
+        protein_g:
+          type: number
+          format: float
+          nullable: true
+        carbs_g:
+          type: number
+          format: float
+          nullable: true
+        fat_g:
+          type: number
+          format: float
+          nullable: true
+
+    DashboardSummary:
+      type: object
+      required:
+        - workoutsCompletedLast7Days
+        - totalSetsLast7Days
+        - volumeByMovementPatternLast7Days
+        - prs
+        - estimatedOneRmByLift
+        - prEvents
+        - weeklyMuscleGroupVolume
+        - weeklyVolumeTrend
+        - adherenceStreaks
+        - weightTrendPoints
+        - readinessSelfReportHistory
+        - proteinAdherenceLast7DaysPercent
+        - nutritionTotalsToday
+      properties:
+        workoutsCompletedLast7Days:
+          type: integer
+          format: int32
+        totalSetsLast7Days:
+          type: integer
+          format: int32
+        volumeByMovementPatternLast7Days:
+          type: object
+          additionalProperties:
+            type: number
+            format: float
+        prs:
+          $ref: '#/components/schemas/CoreLiftPRSummary'
+        estimatedOneRmByLift:
+          $ref: '#/components/schemas/MainLiftEstimatedOneRMSummary'
+        prEvents:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardPREvent'
+        weeklyMuscleGroupVolume:
+          type: array
+          items:
+            $ref: '#/components/schemas/WeeklyMuscleGroupVolume'
+        weeklyVolumeTrend:
+          type: array
+          items:
+            $ref: '#/components/schemas/WeeklyVolumeTrendPoint'
+        adherenceStreaks:
+          $ref: '#/components/schemas/AdherenceStreaks'
+        weightTrendPoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/WeightTrendPoint'
+        readinessSelfReportHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReadinessSelfReportPoint'
+        proteinAdherenceLast7DaysPercent:
+          type: number
+          format: float
+        nutritionTotalsToday:
+          $ref: '#/components/schemas/MacroNutrientTotals'
+
+    DashboardReadinessCheckinRequest:
+      type: object
+      required:
+        - energyLevel
+        - sleepQuality
+        - stressLevel
+      properties:
+        date:
+          type: string
+          format: date
+          nullable: true
+        energyLevel:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 3
+        sleepQuality:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 3
+        stressLevel:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 3
+
+    DashboardReadinessCheckin:
+      type: object
+      required:
+        - userId
+        - date
+        - energyLevel
+        - sleepQuality
+        - stressLevel
+        - readinessScore
+        - createdAt
+        - updatedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        energyLevel:
+          type: integer
+          format: int32
+        sleepQuality:
+          type: integer
+          format: int32
+        stressLevel:
+          type: integer
+          format: int32
+        readinessScore:
+          type: number
+          format: float
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    DashboardReadinessCheckinResponse:
+      type: object
+      required:
+        - checkin
+      properties:
+        checkin:
+          $ref: '#/components/schemas/DashboardReadinessCheckin'
+
+    DashboardSummaryResponse:
+      type: object
+      required:
+        - summary
+      properties:
+        summary:
+          $ref: '#/components/schemas/DashboardSummary'
+
+    Habit:
+      type: object
+      required:
+        - id
+        - userId
+        - name
+        - type
+        - targetJson
+        - active
+        - completed
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        targetJson:
+          type: object
+          additionalProperties: true
+        active:
+          type: boolean
+        completed:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    HabitDailyLog:
+      type: object
+      required:
+        - id
+        - habitId
+        - date
+        - completed
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        habitId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        completed:
+          type: boolean
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateHabitRequest:
+      type: object
+      required:
+        - name
+        - type
+        - target_json
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        target_json:
+          type: object
+          additionalProperties: true
+        active:
+          type: boolean
+          nullable: true
+
+    HabitResponse:
+      type: object
+      required:
+        - habit
+      properties:
+        habit:
+          $ref: '#/components/schemas/Habit'
+
+    HabitsResponse:
+      type: object
+      required:
+        - habits
+      properties:
+        habits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Habit'
+
+    HabitToggleTodayResponse:
+      type: object
+      required:
+        - log
+      properties:
+        log:
+          $ref: '#/components/schemas/HabitDailyLog'
+
+    HabitStreak:
+      type: object
+      required:
+        - habitId
+        - name
+        - type
+        - currentStreak
+        - longestStreak
+      properties:
+        habitId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        currentStreak:
+          type: integer
+          format: int32
+        longestStreak:
+          type: integer
+          format: int32
+
+    HabitStreaksResponse:
+      type: object
+      required:
+        - streaks
+      properties:
+        streaks:
+          type: array
+          items:
+            $ref: '#/components/schemas/HabitStreak'
+
+    MomentumSprintEnrollRequest:
+      type: object
+      required:
+        - goal
+      properties:
+        goal:
+          type: string
+          description: User goal label used to select sprint checklist habits.
+
+    MomentumSprintDayCompleteRequest:
+      type: object
+      required:
+        - habitKey
+        - completed
+      properties:
+        date:
+          type: string
+          format: date
+          description: UTC date key for the checklist update; defaults to today's UTC date.
+        habitKey:
+          type: string
+        completed:
+          type: boolean
+
+    MomentumSprintEnrollment:
+      type: object
+      required:
+        - id
+        - userId
+        - goal
+        - startDate
+        - endDate
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        goal:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    MomentumSprintChecklistEntry:
+      type: object
+      required:
+        - id
+        - date
+        - habitKey
+        - habitLabel
+        - displayOrder
+        - completed
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        habitKey:
+          type: string
+        habitLabel:
+          type: string
+        displayOrder:
+          type: integer
+          format: int32
+        completed:
+          type: boolean
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    MomentumSprintRewardMilestone:
+      type: object
+      required:
+        - id
+        - milestoneDay
+        - rewardLabel
+        - unlocked
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        milestoneDay:
+          type: integer
+          format: int32
+        rewardLabel:
+          type: string
+        unlocked:
+          type: boolean
+        unlockedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    MomentumSprintProgress:
+      type: object
+      required:
+        - totalDays
+        - completedDays
+        - currentDay
+        - daysRemaining
+        - completionPercent
+        - currentStreak
+        - longestStreak
+        - completedToday
+      properties:
+        totalDays:
+          type: integer
+          format: int32
+        completedDays:
+          type: integer
+          format: int32
+        currentDay:
+          type: integer
+          format: int32
+        daysRemaining:
+          type: integer
+          format: int32
+        completionPercent:
+          type: number
+          format: float
+        currentStreak:
+          type: integer
+          format: int32
+        longestStreak:
+          type: integer
+          format: int32
+        completedToday:
+          type: boolean
+        nextMilestoneDay:
+          type: integer
+          format: int32
+          nullable: true
+        nextMilestoneLabel:
+          type: string
+          nullable: true
+
+    MomentumSprintStatusResponse:
+      type: object
+      required:
+        - enrolled
+        - todayChecklist
+        - milestones
+      properties:
+        enrolled:
+          type: boolean
+        enrollment:
+          $ref: '#/components/schemas/MomentumSprintEnrollment'
+          nullable: true
+        progress:
+          $ref: '#/components/schemas/MomentumSprintProgress'
+          nullable: true
+        todayChecklist:
+          type: array
+          items:
+            $ref: '#/components/schemas/MomentumSprintChecklistEntry'
+        milestones:
+          type: array
+          items:
+            $ref: '#/components/schemas/MomentumSprintRewardMilestone'
+
+    Food:
+      type: object
+      required:
+        - id
+        - externalId
+        - provider
+        - label
+        - nutrients
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        externalId:
+          type: string
+        provider:
+          type: string
+        label:
+          type: string
+        brand:
+          type: string
+          nullable: true
+        nutrients:
+          $ref: '#/components/schemas/NutrientValues'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    FoodSearchResponse:
+      type: object
+      required:
+        - foods
+      properties:
+        foods:
+          type: array
+          items:
+            $ref: '#/components/schemas/Food'
+
+    FoodResponse:
+      type: object
+      required:
+        - food
+      properties:
+        food:
+          $ref: '#/components/schemas/Food'
+
+    FoodLog:
+      type: object
+      required:
+        - id
+        - userId
+        - datetime
+        - foodId
+        - quantity
+        - unit
+        - nutrientsSnapshot
+        - createdAt
+        - food
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        datetime:
+          type: string
+          format: date-time
+        foodId:
+          type: string
+          format: uuid
+        quantity:
+          type: number
+          format: float
+        unit:
+          type: string
+        nutrientsSnapshot:
+          $ref: '#/components/schemas/NutrientValues'
+        createdAt:
+          type: string
+          format: date-time
+        food:
+          $ref: '#/components/schemas/Food'
+
+    CreateFoodLogRequest:
+      type: object
+      required:
+        - foodId
+        - quantity
+      properties:
+        foodId:
+          type: string
+          format: uuid
+        datetime:
+          type: string
+          format: date-time
+        quantity:
+          type: number
+          format: float
+          minimum: 0
+          exclusiveMinimum: true
+        unit:
+          type: string
+
+    FoodLogResponse:
+      type: object
+      required:
+        - log
+      properties:
+        log:
+          $ref: '#/components/schemas/FoodLog'
+
+    FoodLogsResponse:
+      type: object
+      required:
+        - date
+        - logs
+        - totals
+      properties:
+        date:
+          type: string
+          format: date
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/FoodLog'
+        totals:
+          $ref: '#/components/schemas/MacroNutrientTotals'
+
+    NutritionTargets:
+      type: object
+      required:
+        - userId
+        - calories_target
+        - protein_g_target
+        - createdAt
+        - updatedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+        calories_target:
+          type: integer
+          format: int32
+          minimum: 1
+        protein_g_target:
+          type: integer
+          format: int32
+          minimum: 1
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    NutritionDailyCheckin:
+      type: object
+      required:
+        - id
+        - userId
+        - date
+        - hit_calories
+        - hit_protein
+        - notes
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        calories_estimate:
+          type: integer
+          format: int32
+          nullable: true
+        protein_g_estimate:
+          type: integer
+          format: int32
+          nullable: true
+        hit_calories:
+          type: boolean
+        hit_protein:
+          type: boolean
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    UpsertNutritionTargetsRequest:
+      type: object
+      required:
+        - calories_target
+        - protein_g_target
+      properties:
+        calories_target:
+          type: integer
+          format: int32
+          minimum: 1
+        protein_g_target:
+          type: integer
+          format: int32
+          minimum: 1
+
+    NutritionTargetsResponse:
+      type: object
+      required:
+        - targets
+      properties:
+        targets:
+          $ref: '#/components/schemas/NutritionTargets'
+
+    NutritionCheckinRequest:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        calories_estimate:
+          type: integer
+          format: int32
+          minimum: 0
+          nullable: true
+        protein_g_estimate:
+          type: integer
+          format: int32
+          minimum: 0
+          nullable: true
+        notes:
+          type: string
+
+    NutritionCheckinResponse:
+      type: object
+      required:
+        - checkin
+      properties:
+        checkin:
+          $ref: '#/components/schemas/NutritionDailyCheckin'
+
+    NutritionTodayResponse:
+      type: object
+      required:
+        - date
+        - targetsConfigured
+      properties:
+        date:
+          type: string
+          format: date
+        targetsConfigured:
+          type: boolean
+        targets:
+          $ref: '#/components/schemas/NutritionTargets'
+          nullable: true
+        checkin:
+          $ref: '#/components/schemas/NutritionDailyCheckin'
+          nullable: true
+
+    WeightUnit:
+      type: string
+      enum: [kg, lb]
+
+    NutritionWeightEntry:
+      type: object
+      required:
+        - userId
+        - date
+        - weight
+        - unit
+        - weightKg
+        - createdAt
+        - updatedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        weight:
+          type: number
+          format: float
+        unit:
+          $ref: '#/components/schemas/WeightUnit'
+        weightKg:
+          type: number
+          format: float
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UpsertWeightEntryRequest:
+      type: object
+      required:
+        - weight
+        - unit
+      properties:
+        date:
+          type: string
+          format: date
+        weight:
+          type: number
+          format: float
+          minimum: 0
+          exclusiveMinimum: true
+        unit:
+          $ref: '#/components/schemas/WeightUnit'
+
+    NutritionWeightEntryResponse:
+      type: object
+      required:
+        - entry
+      properties:
+        entry:
+          $ref: '#/components/schemas/NutritionWeightEntry'
+
+    NutritionWeightTrendPoint:
+      type: object
+      required:
+        - weekStartDate
+      properties:
+        weekStartDate:
+          type: string
+          format: date
+        entryDate:
+          type: string
+          format: date
+          nullable: true
+        weight:
+          type: number
+          format: float
+          nullable: true
+        unit:
+          $ref: '#/components/schemas/WeightUnit'
+          nullable: true
+        weightKg:
+          type: number
+          format: float
+          nullable: true
+
+    NutritionWeightTrendResponse:
+      type: object
+      required:
+        - points
+      properties:
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/NutritionWeightTrendPoint'
+
+    WeeklyMacroTargets:
+      type: object
+      required:
+        - calories_target
+        - protein_g_target
+        - carbs_g_target
+        - fat_g_target
+      properties:
+        calories_target:
+          type: integer
+          format: int32
+          minimum: 1
+        protein_g_target:
+          type: integer
+          format: int32
+          minimum: 0
+        carbs_g_target:
+          type: integer
+          format: int32
+          minimum: 0
+        fat_g_target:
+          type: integer
+          format: int32
+          minimum: 0
+
+    NutritionWeeklyCheckin:
+      type: object
+      required:
+        - userId
+        - week_start
+        - adherence
+        - weight_change
+        - previous_targets
+        - new_targets
+        - calorie_delta
+        - goal_pace_kg_per_week
+        - explanation
+        - createdAt
+        - updatedAt
+      properties:
+        userId:
+          type: string
+          format: uuid
+        week_start:
+          type: string
+          format: date
+        adherence:
+          type: number
+          format: float
+        weight_change:
+          type: number
+          format: float
+        previous_targets:
+          $ref: '#/components/schemas/WeeklyMacroTargets'
+        new_targets:
+          $ref: '#/components/schemas/WeeklyMacroTargets'
+        calorie_delta:
+          type: integer
+          format: int32
+        goal_pace_kg_per_week:
+          type: number
+          format: float
+        explanation:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    NutritionWeeklyCheckinRequest:
+      type: object
+      properties:
+        week_start:
+          type: string
+          format: date
+
+    NutritionWeeklyCheckinResponse:
+      type: object
+      required:
+        - checkin
+      properties:
+        checkin:
+          $ref: '#/components/schemas/NutritionWeeklyCheckin'
+
+    NutritionRecipeIngredient:
+      type: object
+      required:
+        - name
+        - quantity
+        - unit
+        - category
+      properties:
+        name:
+          type: string
+        quantity:
+          type: number
+          format: float
+          minimum: 0
+          exclusiveMinimum: true
+        unit:
+          type: string
+        category:
+          type: string
+
+    NutritionRecipe:
+      type: object
+      required:
+        - id
+        - slug
+        - name
+        - meal_type
+        - servings
+        - calories_kcal
+        - protein_g
+        - carbs_g
+        - fat_g
+        - ingredients
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        meal_type:
+          type: string
+        description:
+          type: string
+        servings:
+          type: number
+          format: float
+        calories_kcal:
+          type: integer
+          format: int32
+        protein_g:
+          type: integer
+          format: int32
+        carbs_g:
+          type: integer
+          format: int32
+        fat_g:
+          type: integer
+          format: int32
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/NutritionRecipeIngredient'
+
+    NutritionMealPlanItem:
+      type: object
+      required:
+        - day_of_week
+        - meal_slot
+        - servings
+        - recipe
+      properties:
+        day_of_week:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 7
+        meal_slot:
+          type: string
+        servings:
+          type: number
+          format: float
+          minimum: 0
+          exclusiveMinimum: true
+        recipe:
+          $ref: '#/components/schemas/NutritionRecipe'
+
+    NutritionMealPlanEditableItem:
+      type: object
+      required:
+        - day_of_week
+        - meal_slot
+        - recipe_id
+        - servings
+      properties:
+        day_of_week:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 7
+        meal_slot:
+          type: string
+        recipe_id:
+          type: string
+          format: uuid
+        servings:
+          type: number
+          format: float
+          minimum: 0
+          exclusiveMinimum: true
+
+    NutritionGroceryItem:
+      type: object
+      required:
+        - name
+        - quantity
+        - unit
+        - category
+      properties:
+        name:
+          type: string
+        quantity:
+          type: number
+          format: float
+          minimum: 0
+          exclusiveMinimum: true
+        unit:
+          type: string
+        category:
+          type: string
+
+    NutritionMealPlan:
+      type: object
+      required:
+        - id
+        - userId
+        - week_start
+        - targets
+        - items
+        - grocery_items
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        week_start:
+          type: string
+          format: date
+        targets:
+          $ref: '#/components/schemas/WeeklyMacroTargets'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NutritionMealPlanItem'
+        grocery_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NutritionGroceryItem'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    NutritionMealPlanGenerateRequest:
+      type: object
+      properties:
+        week_start:
+          type: string
+          format: date
+
+    NutritionMealPlanUpsertRequest:
+      type: object
+      required:
+        - week_start
+        - items
+      properties:
+        week_start:
+          type: string
+          format: date
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/NutritionMealPlanEditableItem'
+
+    NutritionMealPlanResponse:
+      type: object
+      required:
+        - meal_plan
+      properties:
+        meal_plan:
+          $ref: '#/components/schemas/NutritionMealPlan'
+
+    NutritionRecipeImportDraft:
+      type: object
+      required:
+        - slug
+        - name
+        - meal_type
+        - description
+        - servings
+        - calories_kcal
+        - protein_g
+        - carbs_g
+        - fat_g
+        - ingredients
+        - instructions
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        meal_type:
+          type: string
+        description:
+          type: string
+        servings:
+          type: number
+          format: float
+          minimum: 0
+          exclusiveMinimum: true
+        calories_kcal:
+          type: integer
+          format: int32
+          minimum: 0
+        protein_g:
+          type: integer
+          format: int32
+          minimum: 0
+        carbs_g:
+          type: integer
+          format: int32
+          minimum: 0
+        fat_g:
+          type: integer
+          format: int32
+          minimum: 0
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/NutritionRecipeIngredient'
+        instructions:
+          type: array
+          items:
+            type: string
+
+    NutritionRecipeImportRequest:
+      type: object
+      required:
+        - source_url
+      properties:
+        source_url:
+          type: string
+          format: uri
+        confirm:
+          type: boolean
+        draft:
+          $ref: '#/components/schemas/NutritionRecipeImportDraft'
+
+    NutritionRecipeImportResponse:
+      type: object
+      required:
+        - source_url
+        - confirmed
+        - draft
+      properties:
+        source_url:
+          type: string
+          format: uri
+        confirmed:
+          type: boolean
+        draft:
+          $ref: '#/components/schemas/NutritionRecipeImportDraft'
+        recipe:
+          allOf:
+            - $ref: '#/components/schemas/NutritionRecipe'
+          nullable: true
+
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string

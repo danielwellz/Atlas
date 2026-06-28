@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+
+# API local env/build artifacts
+atlas-api/.env
+atlas-api/bin/
+.gradle/
+
+# JavaScript dependencies (never commit vendored modules)
+node_modules/
+**/node_modules/
+
+# Mobile build artifacts
+atlas-mobile/android/.gradle/
+atlas-mobile/android/app/build/
+atlas-mobile/ios/Pods/
+
+# Infra local data
+infra/local/.env
+infra/staging/.env

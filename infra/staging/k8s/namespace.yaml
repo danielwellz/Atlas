@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: atlas-staging
+  labels:
+    app.kubernetes.io/part-of: atlas
+    app.kubernetes.io/environment: staging
