@@ -10,12 +10,12 @@ Install the following before running the apps:
    Run: `xcode-select --install`
 2. CocoaPods  
    Example: `brew install cocoapods`
-3. Node.js 22.x (required by `atlas-mobile`)  
-   Example with nvm: `nvm install 22 && nvm use 22`
+3. Node.js 22.x (required by `atlas-mobile`, pinned in `atlas-mobile/.nvmrc`)  
+   Example with nvm: `cd atlas-mobile && nvm install && nvm use`
 4. Watchman  
    Run: `brew install watchman`
 5. Docker Desktop
-6. Go toolchain (1.22+)
+6. Go toolchain 1.26 (`atlas-api/go.mod` sets `toolchain go1.26.8`; an older `go` downloads it automatically unless `GOTOOLCHAIN=local`)
 
 ## Android Studio setup
 
@@ -42,6 +42,21 @@ export PATH="$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator"
 
 ```bash
 make dev-up
+```
+
+This starts only Postgres on `localhost:5432`, the one service the API needs. If something else already listens on 5432 (for example a Homebrew Postgres), stop it or pass `POSTGRES_URL=postgres://atlas:atlas@<host>:<port>/atlas?sslmode=disable` to the `make` targets.
+
+Optional services sit behind the `optional` Compose profile and are not started by default:
+
+| Service | Ports | When you need it |
+|---|---|---|
+| `minio` | 9000 (S3), 9001 (console) | Only with `ASSET_STORAGE_BACKEND=s3` (or `minio`). MinIO no longer publishes `minio/minio` publicly on Docker Hub, so the pinned tag may not pull; set `MINIO_IMAGE` to an S3-compatible image you can access. |
+| `mailpit` | 1025 (SMTP), 8025 (web UI) | Not used by the API today. Multi-arch replacement for MailHog. |
+| `redis` | 6379 | Not used by the API today. |
+
+```bash
+docker compose -f infra/local/docker-compose.yml --profile optional up -d            # all optional services
+docker compose -f infra/local/docker-compose.yml --profile optional up -d mailpit    # just one
 ```
 
 2. If you are migrating from an older clone that previously committed mobile deps, untrack them once:

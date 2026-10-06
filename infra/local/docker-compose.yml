@@ -1,3 +1,5 @@
+# `make dev-up` starts only Postgres, the one service the API needs.
+# Optional services start with: docker compose -f infra/local/docker-compose.yml --profile optional up -d
 services:
   postgres:
     image: postgres:16.4
@@ -17,8 +19,10 @@ services:
       timeout: 5s
       retries: 5
 
+  # Not used by the API today.
   redis:
     image: redis:7.4.0
+    profiles: ["optional"]
     container_name: atlas-redis
     restart: unless-stopped
     ports:
@@ -31,8 +35,12 @@ services:
       timeout: 5s
       retries: 5
 
+  # Only needed with ASSET_STORAGE_BACKEND=s3|minio. MinIO no longer publishes
+  # minio/minio publicly on Docker Hub (verified 2026-10-06), so this tag may
+  # not pull; set MINIO_IMAGE to an image you can access.
   minio:
-    image: minio/minio:RELEASE.2024-07-16T23-46-41Z
+    image: ${MINIO_IMAGE:-minio/minio:RELEASE.2024-07-16T23-46-41Z}
+    profiles: ["optional"]
     container_name: atlas-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -45,9 +53,11 @@ services:
     volumes:
       - minio_data:/data
 
-  mailhog:
-    image: mailhog/mailhog:v1.0.1
-    container_name: atlas-mailhog
+  # SMTP catcher (multi-arch MailHog replacement). Not used by the API today.
+  mailpit:
+    image: axllent/mailpit:v1.31.4
+    profiles: ["optional"]
+    container_name: atlas-mailpit
     restart: unless-stopped
     ports:
       - "1025:1025"

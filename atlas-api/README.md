@@ -4,7 +4,7 @@ Go backend service for Atlas.
 
 ## Stack
 
-- Go 1.22+
+- Go 1.26
 - chi router
 - zap structured logging
 - testify tests
@@ -120,3 +120,5 @@ Biomechanics animation references can be normalized through local files or S3/Mi
 - `MINIO_ROOT_USER=atlasminio`
 - `MINIO_ROOT_PASSWORD=atlasminio`
 - `MINIO_USE_SSL=false`
+
+The local `minio` Compose service is optional and not started by `make dev-up`. See [docs/dev-onboarding.md](../docs/dev-onboarding.md) for how to start it and the `MINIO_IMAGE` override.
