@@ -19,3 +19,10 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+// TEMP (verify branch only): async-storage 3.x ships its native dependency in a local Maven repo.
+allprojects {
+    repositories {
+        maven { url = uri("${rootDir}/../node_modules/@react-native-async-storage/async-storage/android/local_repo") }
+    }
+}
