@@ -32,6 +32,7 @@
     "react-native-gesture-handler": "2.30.0",
     "react-native-iap": "^14.7.12",
     "react-native-keychain": "10.0.0",
+    "react-native-nitro-modules": "0.31.10",
     "react-native-permissions": "^5.4.4",
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "4.24.0"
