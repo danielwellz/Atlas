@@ -105,6 +105,47 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
+        // Release-like build (bundled JS, not debuggable) pointed at the staging API.
+        staging {
+            initWith release
+            // The React Native Gradle plugin only sets this placeholder for debug/release.
+            manifestPlaceholders["usesCleartextTraffic"] = "false"
+            matchingFallbacks = ["release"]
+        }
+    }
+}
+
+/**
+ * Atlas environment per build type (see "Environments" in atlas-mobile/README.md).
+ * Each variant regenerates src/config/env.generated.ts before it builds or bundles JS:
+ *   debug, debugOptimized -> $ATLAS_ENV, or local when unset
+ *   staging               -> staging
+ *   release               -> prod
+ * ATLAS_API_BASE_URL, if set, overrides the URL; the script fails the build on a
+ * placeholder or non-HTTPS staging/prod URL. Build one non-debug variant per
+ * Gradle invocation, since all variants share the generated file.
+ */
+def atlasEnvByBuildType = [staging: "staging", release: "prod"]
+def atlasMobileRoot = file("../..")
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        def variantTaskSuffix = variant.name.substring(0, 1).toUpperCase() + variant.name.substring(1)
+        def atlasEnv = atlasEnvByBuildType[variant.buildType]
+        def generateEnvArgs = ["node", "scripts/generate-env.js"] + (atlasEnv ? ["--env", atlasEnv] : [])
+        def generateEnvTask = tasks.register("generateAtlasEnv${variantTaskSuffix}", Exec) {
+            group = "atlas"
+            description = "Writes src/config/env.generated.ts for the ${variant.name} variant."
+            workingDir = atlasMobileRoot
+            commandLine = generateEnvArgs
+            // Cheap, and the shared output file may have been rewritten by another variant.
+            outputs.upToDateWhen { false }
+        }
+        tasks.matching {
+            it.name == "pre${variantTaskSuffix}Build" || it.name == "createBundle${variantTaskSuffix}JsAndAssets"
+        }.configureEach {
+            dependsOn(generateEnvTask)
+        }
     }
 }
 
