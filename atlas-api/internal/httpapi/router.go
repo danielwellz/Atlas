@@ -26,6 +26,10 @@ var publicPathAllowlist = map[string]struct{}{
 }
 
 func NewRouter(logger *zap.Logger, cfg config.Config, queries db.Querier, tokenSvc *auth.TokenService) http.Handler {
+	return newRouter(logger, cfg, tokenSvc, NewServer(logger, cfg, queries, tokenSvc))
+}
+
+func newRouter(logger *zap.Logger, cfg config.Config, tokenSvc *auth.TokenService, apiServer *Server) http.Handler {
 	r := chi.NewRouter()
 	r.Use(chimiddleware.RequestID)
 	r.Use(chimiddleware.RealIP)
@@ -33,8 +37,6 @@ func NewRouter(logger *zap.Logger, cfg config.Config, queries db.Querier, tokenS
 	r.Use(middleware.OTelHTTP(cfg.ServiceName))
 	r.Use(middleware.RequestLogger(logger))
 	r.Use(middleware.Authenticator(logger, tokenSvc, publicPathAllowlist))
-
-	apiServer := NewServer(logger, cfg, queries, tokenSvc)
 
 	strictMiddlewares := []generated.StrictMiddlewareFunc{
 		apiServer.strictEntitlementMiddleware(),

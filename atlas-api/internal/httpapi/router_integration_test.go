@@ -1520,13 +1520,17 @@ func TestWorkoutCompleteLocksFurtherSetWritesIntegration(t *testing.T) {
 }
 
 func TestDashboardSummaryIntegration(t *testing.T) {
-	server := setupIntegrationServer(t)
+	// The fixtures put workouts at now-2d/now-1d (expected in the current
+	// DATE_TRUNC('week') bucket and the 2-day training streak) and at now-20d
+	// (expected in week bucket 3). Those only line up when now is Wednesday
+	// through Saturday, so pin the server clock to a fixed Wednesday instead of
+	// using the wall clock, which made this test fail on Sun/Mon/Tue.
+	now := time.Date(2026, time.October, 7, 12, 0, 0, 0, time.UTC)
+	server := setupIntegrationServerWithClock(t, func() time.Time { return now })
 
 	email := "dashboard-user@atlas.local"
 	authHeader := registerAndAuthHeader(t, server, email)
 	userID := lookupUserIDByEmail(t, email)
-	nowUTC := time.Now().UTC()
-	now := time.Date(nowUTC.Year(), nowUTC.Month(), nowUTC.Day(), 12, 0, 0, 0, time.UTC)
 	seedAnalyticsWorkoutData(t, userID, now)
 
 	resp, body := doRequest(t, server, http.MethodGet, "/api/v1/dashboard/summary", nil, authHeader)
@@ -2662,6 +2666,14 @@ func TestDashboardSummaryIncludesFoodLogDailyTotalsIntegration(t *testing.T) {
 func setupIntegrationServer(t *testing.T) *httptest.Server {
 	t.Helper()
 
+	return setupIntegrationServerWithClock(t, nil)
+}
+
+// setupIntegrationServerWithClock is setupIntegrationServer with the API
+// server's clock pinned to now; a nil now keeps the real clock.
+func setupIntegrationServerWithClock(t *testing.T, now func() time.Time) *httptest.Server {
+	t.Helper()
+
 	database := openTestDatabase(t)
 	applyMigrations(t, database)
 	truncateTables(t, database)
@@ -2676,7 +2688,12 @@ func setupIntegrationServer(t *testing.T) *httptest.Server {
 
 	queries := db.New(database)
 	tokenSvc := auth.NewTokenService(cfg.JWTSecret, cfg.AccessTokenTTL(), cfg.RefreshTokenTTL(), time.Now)
-	handler := httpapi.NewRouter(zap.NewNop(), cfg, queries, tokenSvc)
+	var handler http.Handler
+	if now == nil {
+		handler = httpapi.NewRouter(zap.NewNop(), cfg, queries, tokenSvc)
+	} else {
+		handler = httpapi.NewRouterWithClock(zap.NewNop(), cfg, queries, tokenSvc, now)
+	}
 
 	server := httptest.NewServer(handler)
 	t.Cleanup(server.Close)
@@ -2690,9 +2707,11 @@ func setupIntegrationServer(t *testing.T) *httptest.Server {
 func openTestDatabase(t *testing.T) *sql.DB {
 	t.Helper()
 
+	// Integration tests truncate every table, so they only ever run against an
+	// explicitly provided throwaway database, never the dev DB.
 	databaseURL := os.Getenv("ATLAS_TEST_POSTGRES_URL")
 	if databaseURL == "" {
-		databaseURL = "postgres://atlas:atlas@localhost:5432/atlas?sslmode=disable"
+		t.Skip("skipping integration test: ATLAS_TEST_POSTGRES_URL is not set (point it at a throwaway database)")
 	}
 
 	database, err := sql.Open("pgx", databaseURL)
