@@ -20,6 +20,7 @@ SET equipment_requirements = equipment_json
 WHERE jsonb_array_length(equipment_requirements) = 0
   AND jsonb_typeof(equipment_json) = 'array';
 
+-- +goose StatementBegin
 DO $$
 BEGIN
     IF NOT EXISTS (
@@ -55,6 +56,7 @@ BEGIN
             CHECK (jsonb_typeof(equipment_requirements) = 'array');
     END IF;
 END $$;
+-- +goose StatementEnd
 
 CREATE INDEX IF NOT EXISTS idx_exercises_movement_pattern_taxonomy_gin ON exercises USING GIN (movement_pattern_taxonomy);
 CREATE INDEX IF NOT EXISTS idx_exercises_contraindication_tags_gin ON exercises USING GIN (contraindication_tags);

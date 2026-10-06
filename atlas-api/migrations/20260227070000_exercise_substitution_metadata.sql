@@ -24,6 +24,7 @@ SET secondary_muscles = secondary_muscles_json
 WHERE jsonb_array_length(secondary_muscles) = 0
   AND jsonb_typeof(secondary_muscles_json) = 'array';
 
+-- +goose StatementBegin
 DO $$
 BEGIN
     IF NOT EXISTS (
@@ -56,6 +57,7 @@ BEGIN
             ADD CONSTRAINT exercises_contraindications_array_check CHECK (jsonb_typeof(contraindications) = 'array');
     END IF;
 END $$;
+-- +goose StatementEnd
 
 -- +goose Down
 ALTER TABLE exercises
