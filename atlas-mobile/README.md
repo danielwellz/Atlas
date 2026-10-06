@@ -62,6 +62,50 @@ If everything is set up correctly, you should see your new app running in the An
 
 This is one way to run your app — you can also build it directly from Android Studio or Xcode.
 
+## Environments (API base URL)
+
+The JS bundle is built for one environment, chosen at build time. There is no runtime switch.
+
+| Environment | API base URL | Selected by |
+|---|---|---|
+| `local` | `http://10.0.2.2:8080` (Android emulator), `http://localhost:8080` (iOS simulator) | Android `debug` / `debugOptimized`, iOS `Debug` (default) |
+| `staging` | `TODO(owner)`, HTTPS only | Android `staging` build type, iOS `Staging` configuration (not created yet, see T18) |
+| `prod` | `TODO(owner)`, HTTPS only | Android `release`, iOS `Release` |
+
+How it works:
+
+- `src/config/environments.json` holds the per-environment defaults. Owners: replace the `TODO(owner)` staging and prod URLs there, or supply them at build time with `ATLAS_API_BASE_URL` (for example from a CI secret).
+- `scripts/generate-env.js` writes `src/config/env.generated.ts` (gitignored), which records the environment and any URL override. It runs on `npm ci`/`npm install` (only if the file is missing), before `npm test` and `npm run typecheck` (same), and on every native build: Gradle runs `generateAtlasEnv<Variant>` and Xcode runs `scripts/xcode-generate-env.sh` from the "Bundle React Native code and images" phase.
+- The script fails the build if the URL is still a placeholder, is not a valid URL, or is not `https://` for staging or prod.
+- At startup `src/config` resolves the config (`appConfig.apiBaseUrl`) and throws if the URL is a placeholder, if staging or prod is not HTTPS, or if a release build (`__DEV__ === false`) would use plain HTTP. `src/api/client.ts` takes its base URL from there.
+
+Common tasks:
+
+```sh
+# Debug build against a backend on your LAN (physical device)
+ATLAS_API_BASE_URL=http://192.168.1.20:8080 npm run env
+npm start
+
+# Debug build against staging (debug builds honour ATLAS_ENV; staging/release ignore it)
+ATLAS_ENV=staging ATLAS_API_BASE_URL=https://api.staging.example.com npm run env
+ATLAS_ENV=staging ATLAS_API_BASE_URL=https://api.staging.example.com npm run android
+
+# Staging and production APKs
+cd android
+ATLAS_API_BASE_URL=https://api.staging.example.com ./gradlew assembleStaging
+ATLAS_API_BASE_URL=https://api.example.com ./gradlew assembleRelease
+
+# Back to local defaults
+npm run env
+```
+
+Notes:
+
+- Debug builds always regenerate the file on build, so a debug build with `ATLAS_ENV` unset goes back to `local`. Metro serves whatever `env.generated.ts` currently says, so rerun `npm run env` (or a debug build) after building staging or release locally.
+- All variants share one generated file, so build one non-debug variant per Gradle invocation (`assembleStaging` and `assembleRelease` separately, not together).
+- Android `staging` is a copy of `release` (bundled JS, no cleartext traffic, same signing for now; release signing is T17). It uses the same application ID as release, so it replaces a release install on the same device.
+- iOS: the `Staging` Xcode configuration is not created yet (deferred with T18). Until then, iOS staging builds need a `Staging` configuration added in Xcode; `scripts/xcode-generate-env.sh` already maps it.
+
 ## Unity As A Library (Anatomy)
 
 Atlas now includes an `Anatomy` tab that opens Unity full-screen through a native bridge module named `UnityBridgeModule`.
