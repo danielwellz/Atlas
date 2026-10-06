@@ -16,7 +16,7 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	// Keep this semconv version equal to the one resource.Default() uses in the
 	// otel SDK; mismatched schema URLs make resource.Merge fail at startup.
-	semconv "go.opentelemetry.io/otel/semconv/v1.39.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.43.0"
 	"go.uber.org/zap"
 )
 
@@ -29,7 +29,7 @@ func InitOTel(ctx context.Context, logger *zap.Logger, serviceName, env string) 
 		resource.NewWithAttributes(
 			semconv.SchemaURL,
 			semconv.ServiceName(serviceName),
-			semconv.DeploymentEnvironmentName(env),
+			semconv.DeploymentEnvironmentNameKey.String(env),
 		),
 	)
 	if err != nil {
