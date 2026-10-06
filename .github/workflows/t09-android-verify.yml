@@ -1,0 +1,83 @@
+# TEMPORARY: verifies T09's Gradle wiring on a throwaway branch. Not for merge.
+name: T09 Android verify (temporary)
+
+on:
+  push:
+    branches:
+      - task/T09-android-verify
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: atlas-mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: atlas-mobile/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - run: npm ci
+
+      - name: Release without a prod URL fails the build
+        working-directory: atlas-mobile/android
+        run: |
+          set +e
+          ./gradlew --no-daemon generateAtlasEnvRelease > /tmp/release.log 2>&1
+          status=$?
+          cat /tmp/release.log | tail -20
+          if [ "$status" -eq 0 ]; then echo "::error::expected generateAtlasEnvRelease to fail"; exit 1; fi
+          grep -q 'still a placeholder' /tmp/release.log
+
+      - name: Release with an http:// prod URL fails the build
+        working-directory: atlas-mobile/android
+        env:
+          ATLAS_API_BASE_URL: http://api.atlas-ci.invalid
+        run: |
+          set +e
+          ./gradlew --no-daemon generateAtlasEnvRelease > /tmp/release-http.log 2>&1
+          status=$?
+          tail -20 /tmp/release-http.log
+          if [ "$status" -eq 0 ]; then echo "::error::expected failure"; exit 1; fi
+          grep -q 'must use https' /tmp/release-http.log
+
+      - name: assembleDebug
+        working-directory: atlas-mobile/android
+        run: ./gradlew --no-daemon assembleDebug -PreactNativeArchitectures=x86_64
+
+      - name: Debug build selected local
+        run: |
+          cat src/config/env.generated.ts
+          grep -q "name: 'local'" src/config/env.generated.ts
+
+      - name: assembleStaging
+        working-directory: atlas-mobile/android
+        env:
+          ATLAS_API_BASE_URL: https://api.staging.atlas-ci.invalid
+        run: ./gradlew --no-daemon assembleStaging -PreactNativeArchitectures=x86_64
+
+      - name: Staging APK has the staging env and no cleartext
+        run: |
+          cat src/config/env.generated.ts
+          grep -q "name: 'staging'" src/config/env.generated.ts
+          ls android/app/build/outputs/apk/*/
+          apk=$(ls android/app/build/outputs/apk/staging/*.apk | head -1)
+          unzip -p "$apk" assets/index.android.bundle | strings | grep -c 'api.staging.atlas-ci.invalid'
+          manifest=$(find android/app/build/intermediates -path '*staging*' -name AndroidManifest.xml | grep -i merged | head -1)
+          echo "$manifest"
+          grep -o 'usesCleartextTraffic="[a-z]*"' "$manifest"
+          grep -q 'usesCleartextTraffic="false"' "$manifest"
+          debug_manifest=$(find android/app/build/intermediates -path '*debug*' -name AndroidManifest.xml | grep -i merged | head -1)
+          grep -o 'usesCleartextTraffic="[a-z]*"' "$debug_manifest"
