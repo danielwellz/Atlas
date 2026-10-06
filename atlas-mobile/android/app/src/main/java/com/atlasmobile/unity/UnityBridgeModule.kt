@@ -20,7 +20,7 @@ class UnityBridgeModule(
 
   @ReactMethod
   fun openUnity(promise: Promise) {
-    val activity = currentActivity
+    val activity = reactApplicationContext.currentActivity
     UnityBridgeRuntime.attachReactContext(reactApplicationContext)
     UnityBridgeRuntime.notifyUnityOpenRequested()
 

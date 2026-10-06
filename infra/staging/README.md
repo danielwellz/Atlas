@@ -58,7 +58,9 @@ kubectl kustomize infra/staging/k8s
 
 ## CI deployment flow
 
-On push to `main`, CI will:
+The `Staging Deploy (GitOps)` job in `.github/workflows/ci.yml` is **off by default**. It runs only when the repository variable `STAGING_DEPLOY_ENABLED` is `true`. Until then it shows as skipped on every push to `main`, because there is no staging cluster or Argo CD yet (T19).
+
+When it is enabled, on push to `main` CI will:
 
 1. Build and push `atlas-api` image to GHCR.
 2. Update `infra/staging/k8s/kustomization.yaml` with the image tag.
@@ -72,3 +74,12 @@ Required GitHub secrets for the deploy job:
 - `ARGOCD_AUTH_TOKEN`
 - `STAGING_API_BASE_URL`
 - `STAGING_OTEL_COLLECTOR_METRICS_URL`
+
+### Turning the deploy job on
+
+1. Finish the cluster bootstrap above: Argo CD installed, `atlas-api-staging` Application applied, staging secrets in place.
+2. Add the four secrets above under GitHub → repository **Settings → Secrets and variables → Actions → Secrets** (or on the `staging` environment the job uses).
+3. Under **Settings → Secrets and variables → Actions → Variables**, add a repository variable `STAGING_DEPLOY_ENABLED` with the value `true`. With the GitHub CLI: `gh variable set STAGING_DEPLOY_ENABLED --body true`.
+4. Push to `main` (or re-run the latest `main` CI run). The job should now run instead of being skipped.
+
+To pause deploys again, set the variable to anything other than `true` (for example `false`) or delete it.

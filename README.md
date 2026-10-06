@@ -16,7 +16,7 @@ Atlas is a fitness platform monorepo with a Go API, a React Native mobile app, a
 
 ## Stack
 
-- Backend: Go 1.22+, chi, PostgreSQL, goose, sqlc, oapi-codegen
+- Backend: Go 1.26, chi, PostgreSQL, goose, sqlc, oapi-codegen
 - Mobile: React Native 0.84, TypeScript, React Navigation, TanStack Query
 - Native modules: Android Kotlin, iOS Swift/Objective-C bridges
 - Anatomy engine: Unity as a Library
@@ -26,8 +26,8 @@ Atlas is a fitness platform monorepo with a Go API, a React Native mobile app, a
 
 For the full local development environment, install:
 
-- Go 1.22+
-- Node.js 22.x
+- Go 1.26 (`atlas-api/go.mod` pins the toolchain; older Go downloads it automatically)
+- Node.js 22.x (`atlas-mobile/.nvmrc`)
 - Docker Desktop
 - Xcode and Xcode Command Line Tools
 - CocoaPods
@@ -38,7 +38,7 @@ See [docs/dev-onboarding.md](docs/dev-onboarding.md) for the complete macOS setu
 
 ## Quick Start
 
-Start local infrastructure:
+Start local infrastructure (Postgres only; Redis, MinIO and Mailpit are optional, see [docs/dev-onboarding.md](docs/dev-onboarding.md)):
 
 ```bash
 make dev-up
@@ -108,7 +108,7 @@ make config:print
 ## Common Commands
 
 ```bash
-make dev-up              # Start local Docker dependencies
+make dev-up              # Start local Postgres (Docker)
 make dev-down            # Stop local Docker dependencies
 make api-run             # Run the Go API
 make api-test            # Run backend tests
