@@ -67,7 +67,7 @@ object UnityBridgeRuntime {
     }
 
     unityActivity.runOnUiThread {
-      it.finish()
+      unityActivity.finish()
     }
   }
 
