@@ -53,31 +53,32 @@ jobs:
           if [ "$status" -eq 0 ]; then echo "::error::expected failure"; exit 1; fi
           grep -q 'must use https' /tmp/release-http.log
 
-      - name: assembleDebug
+      - name: Debug variant generates local env before preDebugBuild
         working-directory: atlas-mobile/android
-        run: ./gradlew --no-daemon assembleDebug -PreactNativeArchitectures=x86_64
+        run: ./gradlew --no-daemon preDebugBuild processDebugMainManifest -PreactNativeArchitectures=x86_64
 
       - name: Debug build selected local
         run: |
           cat src/config/env.generated.ts
           grep -q "name: 'local'" src/config/env.generated.ts
 
-      - name: assembleStaging
+      - name: Staging JS bundle and manifest
         working-directory: atlas-mobile/android
         env:
           ATLAS_API_BASE_URL: https://api.staging.atlas-ci.invalid
-        run: ./gradlew --no-daemon assembleStaging -PreactNativeArchitectures=x86_64
+        run: ./gradlew --no-daemon createBundleStagingJsAndAssets processStagingMainManifest -PreactNativeArchitectures=x86_64
 
-      - name: Staging APK has the staging env and no cleartext
+      - name: Staging bundle has the staging env and no cleartext
         run: |
           cat src/config/env.generated.ts
           grep -q "name: 'staging'" src/config/env.generated.ts
-          ls android/app/build/outputs/apk/*/
-          apk=$(ls android/app/build/outputs/apk/staging/*.apk | head -1)
-          unzip -p "$apk" assets/index.android.bundle | strings | grep -c 'api.staging.atlas-ci.invalid'
-          manifest=$(find android/app/build/intermediates -path '*staging*' -name AndroidManifest.xml | grep -i merged | head -1)
+          bundle=$(find android/app/build/generated/assets -name 'index.android.bundle' -path '*taging*' | head -1)
+          echo "$bundle"
+          strings "$bundle" | grep -c 'api.staging.atlas-ci.invalid'
+          manifest=$(find android/app/build/intermediates -path '*taging*' -name AndroidManifest.xml | head -1)
           echo "$manifest"
           grep -o 'usesCleartextTraffic="[a-z]*"' "$manifest"
           grep -q 'usesCleartextTraffic="false"' "$manifest"
-          debug_manifest=$(find android/app/build/intermediates -path '*debug*' -name AndroidManifest.xml | grep -i merged | head -1)
+          debug_manifest=$(find android/app/build/intermediates -path '*ebug*' -name AndroidManifest.xml | head -1)
+          echo "$debug_manifest"
           grep -o 'usesCleartextTraffic="[a-z]*"' "$debug_manifest"
