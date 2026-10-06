@@ -16,6 +16,7 @@ import {
   sendAppEvent,
 } from '../api/services/eventsService';
 import type { QueueableProductEvent } from '../analytics/types';
+import { getValidAccessToken } from '../auth/tokenManager';
 import { isNetworkOnline } from '../network/onlineManager';
 
 const OUTBOX_STORAGE_KEY = 'atlas.mobile.sync.outbox.v1';
@@ -348,7 +349,7 @@ function markRetryScheduled(item: OutboxItem, nowMs: number): OutboxItem {
   };
 }
 
-async function flushOutboxInternal(accessToken?: string): Promise<FlushOutboxResult> {
+async function flushOutboxInternal(fallbackAccessToken?: string): Promise<FlushOutboxResult> {
   if (!isNetworkOnline()) {
     const pendingCount = await getOutboxPendingCount();
     return {
@@ -364,6 +365,10 @@ async function flushOutboxInternal(accessToken?: string): Promise<FlushOutboxRes
       pendingCount: 0,
     };
   }
+
+  // Resolve the token now, not when the flush was scheduled: queued items can sit for
+  // longer than an access token lives. The auth middleware also refreshes on a 401.
+  const accessToken = (await getValidAccessToken()) ?? fallbackAccessToken;
 
   let flushedCount = 0;
   const remaining: OutboxItem[] = [];
@@ -457,12 +462,16 @@ async function flushOutboxInternal(accessToken?: string): Promise<FlushOutboxRes
   };
 }
 
-export async function flushOutbox(accessToken?: string): Promise<FlushOutboxResult> {
+/**
+ * Sends queued items. The access token comes from the token manager at flush time;
+ * `fallbackAccessToken` is only used when the token manager has no session.
+ */
+export async function flushOutbox(fallbackAccessToken?: string): Promise<FlushOutboxResult> {
   if (flushInFlight) {
     return flushInFlight;
   }
 
-  flushInFlight = flushOutboxInternal(accessToken).finally(() => {
+  flushInFlight = flushOutboxInternal(fallbackAccessToken).finally(() => {
     flushInFlight = null;
   });
 
