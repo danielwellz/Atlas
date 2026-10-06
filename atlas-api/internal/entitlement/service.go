@@ -10,12 +10,12 @@ import (
 )
 
 const (
-	BarcodeScanEntitlement        = "barcode_scan"
-	DeepNutritionEntitlement      = "deep_nutrition"
+	BarcodeScanEntitlement         = "barcode_scan"
+	DeepNutritionEntitlement       = "deep_nutrition"
 	BiomechanicsOverlayEntitlement = "biomechanics_overlays"
-	FormCheckUploadEntitlement    = "form_check_upload"
-	CoachTierProEntitlement       = "coach_tier_pro"
-	CoachTierEliteEntitlement     = "coach_tier_elite"
+	FormCheckUploadEntitlement     = "form_check_upload"
+	CoachTierProEntitlement        = "coach_tier_pro"
+	CoachTierEliteEntitlement      = "coach_tier_elite"
 )
 
 const (

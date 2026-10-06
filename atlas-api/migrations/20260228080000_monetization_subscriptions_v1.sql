@@ -66,6 +66,7 @@ ON CONFLICT DO NOTHING;
 ALTER TABLE coach_sessions
     ADD COLUMN IF NOT EXISTS required_tier TEXT NOT NULL DEFAULT 'free';
 
+-- +goose StatementBegin
 DO $$
 BEGIN
     IF NOT EXISTS (
@@ -79,6 +80,7 @@ BEGIN
     END IF;
 END
 $$;
+-- +goose StatementEnd
 
 CREATE OR REPLACE VIEW user_entitlements AS
 SELECT
