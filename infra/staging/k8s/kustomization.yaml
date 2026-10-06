@@ -12,8 +12,8 @@ resources:
 
 images:
   - name: atlas-api-image
-    newName: ghcr.io/your-org/atlas-api
-    newTag: staging-latest
+    newName: ghcr.io/danielwellz/atlas-api
+    newTag: 5a1a09d9774c
 
 labels:
   - pairs:
