@@ -62,7 +62,8 @@ jobs:
           --health-retries 5
     env:
       POSTGRES_URL: postgres://atlas:atlas@localhost:5432/atlas?sslmode=disable
-      ATLAS_TEST_POSTGRES_URL: postgres://atlas:atlas@localhost:5432/atlas?sslmode=disable
+      # Integration tests truncate every table, so they get their own database.
+      ATLAS_TEST_POSTGRES_URL: postgres://atlas:atlas@localhost:5432/atlas_test?sslmode=disable
     defaults:
       run:
         working-directory: atlas-api
@@ -82,14 +83,39 @@ jobs:
         working-directory: .
         run: make api-migrate-up
 
+      - name: Create integration test database
+        run: PGPASSWORD=atlas psql -h localhost -U atlas -d atlas -c 'CREATE DATABASE atlas_test'
+
       - name: Run tests (including integration)
         run: |
           set -euo pipefail
           go test -v ./... | tee /tmp/go-test.log
-          if grep -q "skipping integration test: postgres unavailable" /tmp/go-test.log; then
-            echo "::error::Integration tests were skipped; ensure Postgres is available"
+          if grep -q "skipping integration test" /tmp/go-test.log; then
+            echo "::error::Integration tests were skipped; ensure Postgres is available and ATLAS_TEST_POSTGRES_URL is set"
             exit 1
           fi
+
+      - name: Boot smoke test
+        run: |
+          set -euo pipefail
+          go build -o /tmp/atlas-api ./cmd/atlas-api
+          APP_ENV=local /tmp/atlas-api > /tmp/atlas-api.log 2>&1 &
+          api_pid=$!
+          for _ in $(seq 1 15); do
+            if curl -fsS http://127.0.0.1:8080/api/v1/health; then
+              echo
+              kill "${api_pid}"
+              exit 0
+            fi
+            if ! kill -0 "${api_pid}" 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          echo "::error::atlas-api did not answer /api/v1/health within 15s"
+          cat /tmp/atlas-api.log
+          kill "${api_pid}" 2>/dev/null || true
+          exit 1
 
   mobile-checks:
     name: Mobile Checks (TypeScript)

@@ -50,6 +50,17 @@ Go backend service for Atlas.
 make api-test
 ```
 
+Without `ATLAS_TEST_POSTGRES_URL`, the integration tests are skipped and no database is touched.
+
+The integration tests apply all migrations and then `TRUNCATE` every table, including migration-seeded reference data such as `muscle_groups`. Run them only against a throwaway database, never your dev `atlas` database:
+
+```bash
+createdb -h localhost -U atlas atlas_test   # once
+ATLAS_TEST_POSTGRES_URL=postgres://atlas:atlas@localhost:5432/atlas_test?sslmode=disable make api-test
+```
+
+CI uses a separate `atlas_test` database and fails if any integration test is skipped.
+
 ## API Contract
 
 OpenAPI spec: `openapi/openapi.yaml`
