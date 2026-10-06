@@ -64,11 +64,11 @@ func (s *Server) PostBillingVerify(
 	}
 
 	rawReceiptPayload := map[string]interface{}{
-		"platform":     platform,
-		"productId":    productID,
-		"receiptToken": receiptToken,
+		"platform":      platform,
+		"productId":     productID,
+		"receiptToken":  receiptToken,
 		"transactionId": transactionID,
-		"verifiedAt":   now.UTC().Format(time.RFC3339),
+		"verifiedAt":    now.UTC().Format(time.RFC3339),
 	}
 	if request.Body.OriginalTransactionId != nil {
 		rawReceiptPayload["originalTransactionId"] = strings.TrimSpace(*request.Body.OriginalTransactionId)

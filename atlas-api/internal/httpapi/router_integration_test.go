@@ -177,17 +177,17 @@ func TestFormCheckUploadRequiresEntitlementAndConsentIntegration(t *testing.T) {
 
 	now := time.Now().UTC()
 	uploadRequest := map[string]any{
-		"movementType":      "squat",
+		"movementType":       "squat",
 		"recordingStartedAt": now.Add(-8 * time.Second).Format(time.RFC3339),
 		"recordingEndedAt":   now.Format(time.RFC3339),
 		"summary": map[string]any{
-			"overallScore":        88,
-			"rangeOfMotionScore":  90,
-			"kneeTrackingScore":   86,
-			"symmetryScore":       84,
+			"overallScore":         88,
+			"rangeOfMotionScore":   90,
+			"kneeTrackingScore":    86,
+			"symmetryScore":        84,
 			"rangeOfMotionDegrees": 83.5,
-			"repetitionCount":     4,
-			"feedback":            []string{"Solid rep quality across depth, tracking, and symmetry."},
+			"repetitionCount":      4,
+			"feedback":             []string{"Solid rep quality across depth, tracking, and symmetry."},
 		},
 		"metadataJson": map[string]any{
 			"source": "integration-test",
@@ -451,9 +451,9 @@ func TestExerciseBiomechanicsEndpointIntegration(t *testing.T) {
 	require.Equal(t, http.StatusForbidden, forbiddenResp.StatusCode)
 
 	activateSubscription(t, server, authHeader, map[string]any{
-		"platform":     "ios",
-		"productId":    "atlas.pro.monthly",
-		"receiptToken": "rcpt-biomechanics-1",
+		"platform":      "ios",
+		"productId":     "atlas.pro.monthly",
+		"receiptToken":  "rcpt-biomechanics-1",
 		"transactionId": "tx-biomechanics-1",
 	})
 
