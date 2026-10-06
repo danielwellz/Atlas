@@ -1,0 +1,15 @@
+{
+  "local": {
+    "apiBaseUrl": {
+      "android": "http://10.0.2.2:8080",
+      "ios": "http://localhost:8080",
+      "default": "http://localhost:8080"
+    }
+  },
+  "staging": {
+    "apiBaseUrl": "TODO(owner): staging API base URL, e.g. https://api.staging.<domain>"
+  },
+  "prod": {
+    "apiBaseUrl": "TODO(owner): production API base URL, e.g. https://api.<domain>"
+  }
+}

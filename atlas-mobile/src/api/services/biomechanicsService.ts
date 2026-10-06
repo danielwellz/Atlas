@@ -1,39 +1,13 @@
-import { API_BASE_URL, getApiErrorMessage } from '../client';
+import type { components } from '../generated/openapi';
+import { atlasApiClient, getApiErrorMessage } from '../client';
 
-export type MuscleHighlight = {
-  muscleGroup: string;
-  activationLevel: number;
-  role: string;
-  colorHex?: string;
-};
-
-export type JointAngle = {
-  joint: string;
-  minDegrees: number;
-  maxDegrees: number;
-  targetDegrees: number;
-  unit: string;
-};
-
-export type ExerciseBiomechanics = {
-  exerciseId: string;
-  exerciseSlug: string;
-  exerciseName: string;
-  animationAssetKey: string;
-  animationAssetUri: string;
-  rigVersion: string;
-  muscleHighlights: MuscleHighlight[];
-  jointAngles: JointAngle[];
-  metadata: Record<string, unknown>;
-};
+export type MuscleHighlight = components['schemas']['MuscleHighlight'];
+export type JointAngle = components['schemas']['JointAngle'];
+export type ExerciseBiomechanics = components['schemas']['ExerciseBiomechanics'];
 
 type ExerciseBiomechanicsInput = {
   accessToken: string;
   exerciseId: string;
-};
-
-type ExerciseBiomechanicsResponse = {
-  biomechanics: ExerciseBiomechanics;
 };
 
 const MOCK_EXERCISE_BIOMECH_BY_ID: Record<string, ExerciseBiomechanics> = {
@@ -88,20 +62,22 @@ export async function getExerciseBiomechanics(
       createFallbackMockBiomechanics(input.exerciseId);
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/v1/exercises/${input.exerciseId}/biomechanics`, {
-    method: 'GET',
+  const response = await atlasApiClient.GET('/api/v1/exercises/{id}/biomechanics', {
+    params: {
+      path: {
+        id: input.exerciseId,
+      },
+    },
     headers: {
       Authorization: `Bearer ${input.accessToken}`,
-      Accept: 'application/json',
     },
   });
 
-  if (!response.ok) {
-    const message = getApiErrorMessage(await response.json().catch(() => null), 'Unable to load biomechanics preview.');
-    throw new Error(message);
+  if (!response.data) {
+    throw new Error(getApiErrorMessage(response.error, 'Unable to load biomechanics preview.'));
   }
 
-  const payload = (await response.json()) as ExerciseBiomechanicsResponse;
+  const payload = response.data;
   if (!payload.biomechanics) {
     throw new Error('Biomechanics payload was empty.');
   }

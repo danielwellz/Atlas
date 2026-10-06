@@ -5,10 +5,14 @@
   "scripts": {
     "android": "react-native run-android",
     "api:generate": "npx --no-install openapi-typescript ../atlas-api/openapi/openapi.yaml -o src/api/generated/openapi.ts",
+    "env": "node scripts/generate-env.js",
     "ios": "react-native run-ios",
     "lint": "eslint .",
+    "postinstall": "node scripts/generate-env.js --if-missing",
     "start": "react-native start",
+    "pretest": "node scripts/generate-env.js --if-missing",
     "test": "jest",
+    "pretypecheck": "node scripts/generate-env.js --if-missing",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
